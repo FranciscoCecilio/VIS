@@ -4,10 +4,8 @@ var padding = 60;
 
 var svg_choropleth_map, svg_circle_packing, svg_line_chart, svg_parallel_coordinates;
 
-var width1 = 600;
-var width2 = 1200;
+var width = 600;
 var height = 400;
-var height2 = 500;
 
 var radius = 5;
 
@@ -38,8 +36,8 @@ function gen_choropleth_map(){
   svg_choropleth_map = d3
     .select("#choropleth_map")
     .append("svg") // we are appending an svg to the div 'line_chart'
-    .attr("width", width2)
-    .attr("height", height2);
+    .attr("width", width*2)
+    .attr("height", 600);
 
   
   var dataGroup = d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d["Country Name"]);
@@ -71,7 +69,7 @@ function gen_line_chart() {
   var xscale = d3
     .scalePoint()
     .domain(xscaleData)
-    .range([padding, width2 - padding]);
+    .range([padding, width*2 - padding]);
 
   dataGroup= d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date);
   var hscale = d3
@@ -85,7 +83,7 @@ function gen_line_chart() {
   svg_line_chart = d3
     .select("#line_chart")
     .append("svg") // we are appending an svg to the div 'line_chart'
-    .attr("width", width2)
+    .attr("width", width*2)
     .attr("height", height);
 
   svg_line_chart
@@ -99,11 +97,9 @@ function gen_line_chart() {
       d3
         .line()
         .x(function (d) {
-          console.log(d[0]);
           return xscale(d[0]);
         })
         .y(function (d) {
-          console.log(d[1]);
           return hscale(d[1]);
         })
     );
@@ -150,7 +146,7 @@ function gen_line_chart() {
     .append("text")
     .attr(
       "transform",
-      "translate(" + width2 / 2 + " ," + (height - padding / 3) + ")"
+      "translate(" + width + " ," + (height - padding / 3) + ")"
     )
     .attr("class", "label")
     .text("Year");
@@ -266,14 +262,64 @@ function button_deaths(){
           d.total = dataGroup.get(d.properties.name) || 0;
           return colorScale(d.total);
       });
+  //Line chart
+  var dataGroup = d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date);
+  var xscaleData = dataset.map((a) => a.Date);
+
+  var xscale = d3
+    .scalePoint()
+    .domain(xscaleData)
+    .range([padding, width*2 - padding]);
+
+  var hscale = d3
+    .scaleLinear()
+    .domain([
+      0,
+      d3.max(dataGroup.values()),
+    ])
+    .range([height - padding, padding]);
+
+  svg_line_chart
+    .select("path")
+    .datum(dataGroup)
+    .attr("fill", "none")
+    .attr("stroke", "orange")
+    .attr("stroke-width", 1)
+    .attr(
+      "d",
+      d3
+        .line()
+        .x(function (d) {
+          return xscale(d[0]);
+        })
+        .y(function (d) {
+          return hscale(d[1]);
+        })
+    );
+
+  var yaxis = d3
+    .axisLeft() // we are creating a d3 axis
+    .scale(hscale) // fit to our scale
+    .tickFormat(d3.format(".2s")) // format of each year
+    .tickSizeOuter(0);
+
+  svg_line_chart
+    .select("g") 
+    .attr("transform", "translate(" + padding + ",0)")
+    .attr("class", "yaxis") // we are giving it a css style
+    .call(yaxis);
+  
+/*Falta mudar o nome do Y!!!!!!!!!!!!
+  svg_line_chart
+    .text("Fatalities");*/
 }
       
 function button_events(){
-    var dataGroup = d3.rollup(dataset, v=>d3.count(v, d=>d.Date),d=>d["Country Name"]);
+  //Choropleth  
+    var dataGroup = d3.rollup(dataset, v=>v.length,d=>d["Country Name"]);
     var colorScale = d3.scaleThreshold()
                     .domain([1, 10, 100, 1000, 1000, 10000])
                     .range(d3.schemeBlues[7]);
-    
     // Update 
     svg_choropleth_map
       .selectAll("path")
@@ -281,6 +327,58 @@ function button_events(){
           d.total = dataGroup.get(d.properties.name) || 0;
           return colorScale(d.total);
       });
+
+
+//Line chart
+  var dataGroup = d3.rollup(dataset, v=>v.length,d=>d.Date);
+  var xscaleData = dataset.map((a) => a.Date);
+
+  var xscale = d3
+    .scalePoint()
+    .domain(xscaleData)
+    .range([padding, width*2 - padding]);
+
+  var hscale = d3
+    .scaleLinear()
+    .domain([
+      0,
+      d3.max(dataGroup.values()),
+    ])
+    .range([height - padding, padding]);
+
+  svg_line_chart
+    .select("path")
+    .datum(dataGroup)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .attr("stroke-width", 1)
+    .attr(
+      "d",
+      d3
+        .line()
+        .x(function (d) {
+          return xscale(d[0]);
+        })
+        .y(function (d) {
+          return hscale(d[1]);
+        })
+    );
+
+  var yaxis = d3
+    .axisLeft() // we are creating a d3 axis
+    .scale(hscale) // fit to our scale
+    .tickFormat(d3.format(".2s")) // format of each year
+    .tickSizeOuter(0);
+
+  svg_line_chart
+    .select("g") 
+    .attr("transform", "translate(" + padding + ",0)")
+    .attr("class", "yaxis") // we are giving it a css style
+    .call(yaxis);
+  
+/*Falta mudar o nome do Y!!!!!!!!!!!!
+  svg_line_chart
+    .text("Events");*/
 }
 
 function prepare_buttons() {
