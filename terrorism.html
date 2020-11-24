@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title>Terrorism</title>
+    <link rel="stylesheet" href="terrorism.css" />
+    <script src="d3.min.js" charset="utf-8"></script>
+    <script src="//d3js.org/topojson.v3.min.js"></script>
+    <script src="terrorism.js"></script>
+    <link rel="shortcut icon" href="" />
+    <!-- Go away favicon. -->
+  </head>
+
+  <body>
+    <h1>Terrorist attacks detailed!</h1>
+    <div>
+      <button type="button" class="btn" id="deaths">Deaths</button>
+      <button type="button" class="btn" id="events">Events</button>
+    </div>
+    <div
+      class="idiom"
+      id="choropleth_map"
+      style="max-width: 1200px; float: left"
+      style="max-height: 1200px; float: left"
+    ></div>
+    <div
+      class="idiom"
+      id="circle_packing"
+      style="max-width: 600px; float: left"
+    ></div>
+    <div
+      class="idiom"
+      id="line_chart"
+      style="max-width: 1200px; float: left"
+    ></div>
+    <div
+      class="idiom"
+      id="parallel_coordinates"
+      style="max-width: 1200px; float: left"
+    ></div>
+  </body>
+</html>

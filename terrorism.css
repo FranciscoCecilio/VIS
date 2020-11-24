@@ -1,0 +1,38 @@
+h1 {
+  font-size: 18pt;
+  font-family: arial, calibri, sans serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+}
+
+.axis text {
+  font-family: arial, calibri, sans serif;
+  font-size: 10pt;
+}
+
+.btn {
+  width: 100px;
+  font-family: arial, calibri, sans serif;
+  padding: 10px;
+  border: solid 1px black;
+  color: white;
+}
+
+#deaths {
+  background-color: red;
+}
+
+#events {
+  background-color: blue;
+}
+
+
+.label {
+  font-family: arial, calibri, sans serif;
+  font-size: 10pt;
+  text-anchor: middle;
+}
