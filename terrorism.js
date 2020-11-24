@@ -90,7 +90,7 @@ function gen_line_chart() {
 
   svg_line_chart
     .append("path")
-    .datum(dataset)
+    .datum(dataGroup)
     .attr("fill", "none")
     .attr("stroke", "orange")
     .attr("stroke-width", 1)
@@ -99,28 +99,12 @@ function gen_line_chart() {
       d3
         .line()
         .x(function (d) {
-          return xscale(d.Date);
+          console.log(d[0]);
+          return xscale(d[0]);
         })
         .y(function (d) {
-          return hscale(d.Fatalities);
-        })
-    );
-
-  svg_line_chart
-    .append("path")
-    .datum(dataset)
-    .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 1)
-    .attr(
-      "d",
-      d3
-        .line()
-        .x(function (d) {
-          return xscale(d.Date);
-        })
-        .y(function (d) {
-          return hscale(d.Fatalities);
+          console.log(d[1]);
+          return hscale(d[1]);
         })
     );
 
@@ -267,13 +251,9 @@ function gen_parallel_coordinates() {
   });
 }
 
-function prepare_buttons() {
-  var hscale = d3
-    .scaleLinear() // we are setting
-    .domain([0, 10]) // values range
-    .range([height - padding, padding]); // we are adding our padding to our height scale
-  
-  d3.select("#deaths").on("click", function () {
+
+
+function button_deaths(){
     var dataGroup = d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d["Country Name"]);
     var colorScale = d3.scaleThreshold()
                     .domain([10, 100, 1000, 10000, 10000, 100000])
@@ -286,14 +266,13 @@ function prepare_buttons() {
           d.total = dataGroup.get(d.properties.name) || 0;
           return colorScale(d.total);
       });
+}
       
-  });
-
-  d3.select("#events").on("click", function () {
+function button_events(){
     var dataGroup = d3.rollup(dataset, v=>d3.count(v, d=>d.Date),d=>d["Country Name"]);
     var colorScale = d3.scaleThreshold()
-                    .domain([10, 100, 1000, 10000, 10000, 100000])
-                    .range(d3.schemeBlues[6]);
+                    .domain([1, 10, 100, 1000, 1000, 10000])
+                    .range(d3.schemeBlues[7]);
     
     // Update 
     svg_choropleth_map
@@ -302,7 +281,11 @@ function prepare_buttons() {
           d.total = dataGroup.get(d.properties.name) || 0;
           return colorScale(d.total);
       });
-  });
+}
+
+function prepare_buttons() {
+  d3.select("#deaths").on("click", function () {button_deaths();});
+  d3.select("#events").on("click", function () {button_events();});
 
   prepare_buttons();
 }
