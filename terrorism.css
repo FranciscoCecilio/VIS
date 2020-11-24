@@ -22,17 +22,14 @@ h1 {
   color: white;
 }
 
-#old {
+#deaths {
   background-color: red;
 }
 
-#new {
-  background-color: purple;
+#events {
+  background-color: blue;
 }
 
-#reset {
-  background-color: gray;
-}
 
 .label {
   font-family: arial, calibri, sans serif;
