@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Terrorism in the world</title>
+    <link rel="stylesheet" href="terrorism.css" />
+    <script src="d3.min.js" charset="utf-8"></script>
+    <script src="//d3js.org/topojson.v3.min.js"></script>
+    <script src="terrorism.js"></script>
+    <link rel="shortcut icon" href="" />
+    <!-- Go away favicon. -->
+  </head>
+
+  <body>
+    
+    <!--div>
+      <span class="btn" id="reset">Reset</span>
+      <span class="btn" id="new">New</span>
+      <span class="btn" id="old">Old</span>
+    </div-->
+    <div>
+      <button type="button" class="btn" id="deaths">Deaths</button>
+      <button type="button" class="btn" id="events">Events</button>
+    </div>
+    <div id="dashboard" class="grid-container">
+      
+      <div
+        class="idiom_map"
+        id="choropleth"
+      ></div>
+      <div
+        class="idiom_cp"
+        id="circle_packing"
+      ></div>
+      <div
+        class="idiom_line"
+        id="line_chart"
+      ></div>
+      <div
+        class="idiom_pc"
+        id="parallel_coordinates"
+      ></div>
+    </div>
+  </body>
+</html>
