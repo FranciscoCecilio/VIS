@@ -37,30 +37,30 @@ h1 {
   text-anchor: middle;
 }
 
-
-
-.grid-container {
-  display: grid;
-  grid-template-areas:
-    'map map map map cp cp'
-    'l l l l l l'
-    'pc pc pc pc pc pc'
-  ;
-  grid-gap: 10px;
-  background-color: aquamarine;
-  padding: 10px;
+div.idiom_map {
+  position:relative;
+  left:0px;
+  top:2px;
+  border-style:dotted;
+  border-color:coral;
 }
-.grid-container > div {
-  background-color: rgba(255, 255, 255, 0.8);
-  text-align: center;
-  padding: 2px 0;
-  font-size: 30px;
-
-  
+div.idiom_cp {
+  position:relative;
+  top:2px;
+  border-style:dotted;
+  border-color:coral;
 }
-
-
-.idiom_map {grid-area: map; }
-.idiom_cp {grid-area: cp;}
-.idiom_line {grid-area: l;}
-.idiom_pc {grid-area: pc;}
+div.idiom_lc {
+  position:relative;
+  left:0px;
+  bottom:2px;
+  border-style:dotted;
+  border-color:coral;
+}
+div.idiom_pc {
+  position:relative;
+  left:0px;
+  bottom:2px;
+  border-style:dotted;
+  border-color:coral;
+}
