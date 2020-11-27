@@ -184,7 +184,7 @@ function gen_line_chart() {
     .append("path")
     .datum(dataGroupRight)
     .attr("fill", "none")
-    .attr("stroke", "green")
+    .attr("stroke", "seagreen")
     .attr("stroke-width", 1)
     .attr(
       "d",
@@ -361,20 +361,18 @@ function button_deaths(){
       });
 
 
-    d3.select("#line_chart").select("svg").remove();
-    gen_line_chart();
- /* //Line chart  
-  width = 1500;
+  //Line chart  
+  width = 1500,
+  height = 300;
   d3.json("security.json").then(function (datasetSecurity) {
       var xscaleData = datasetSecurity.map((a) => a.Date);
       var xscale = d3
         .scalePoint()
         .domain(xscaleData)
         .range([padding, width - padding]);
-     
+//eixo da esquerda
+  dataGroup= d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date); 
 
-  var dataGroup = d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date);  
-  
   var hscale = d3 
     .scaleLinear()  
     .domain([ 
@@ -387,7 +385,7 @@ function button_deaths(){
     .select("path") 
     .datum(dataGroup) 
     .attr("fill", "none") 
-    .attr("stroke", "orange") 
+    .attr("stroke", "tomato")  
     .attr("stroke-width", 1)  
     .attr(  
       "d",  
@@ -413,10 +411,55 @@ function button_deaths(){
     .attr("class", "yaxis") // we are giving it a css style 
     .call(yaxis); 
 
-Falta mudar o nome do Y!!!!!!!!!!!! 
+//eixo da direita
+  dataGroupRight= d3.rollup(datasetSecurity, v=>d3.mean(v, d=>d.Value),d=>d.Date,d=>d["Indicator Name"]);
+  var hscaleRight = d3.scaleLinear()
+    .domain([0,d3.max(dataGroupRight.values()).get("Military expenditure (% of GDP)"),])
+    .range([height - padding, padding]);
+  
+  svg_line_chart
+    .append("path")
+    .datum(dataGroupRight)
+    .attr("fill", "none")
+    .attr("stroke", "seagreen")
+    .attr("stroke-width", 1)
+    .attr(
+      "d",
+      d3
+        .line()
+        .x(function (d) {
+          return xscale(d[0]);
+        })
+        .y(function (d) {
+          return hscaleRight(d[1].get("Military expenditure (% of GDP)"));
+        })
+    );
+  
+  var yaxisRight = d3
+    .axisRight() // we are creating a d3 axis
+    .scale(hscaleRight) // fit to our scale
+    .tickFormat(d3.format(".2s")) // format of each year
+    .tickSizeOuter(0);
+
+  svg_line_chart
+    .append("g") // we are creating a 'g' element to match our yaxis
+    .attr("transform", "translate(" + padding + ",0)")
+    .attr("class", "yaxis") // we are giving it a css style
+    .call(yaxisRight);
+
+  svg_line_chart
+    .append("text")
+    .attr("transform", "rotate(90)")
+    .attr("y", 0)
+    .attr("x", 0 - height / 2)
+    .attr("dy", "1em")
+    .attr("class", "label")
+    .text("Military");
+  
+});
+/*Falta mudar o nome do Y!!!!!!!!!!!! 
   svg_line_chart  
-    .text("Fatalities");  
-  });*/
+    .text("Events");*/  
 }
 
 function button_attacks(){  
@@ -494,7 +537,7 @@ function button_attacks(){
     .append("path")
     .datum(dataGroupRight)
     .attr("fill", "none")
-    .attr("stroke", "green")
+    .attr("stroke", "seagreen")
     .attr("stroke-width", 1)
     .attr(
       "d",
