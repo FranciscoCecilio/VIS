@@ -1,4 +1,4 @@
-var dataset, full_dataset;
+var dataset, full_dataset, datasetSecurity;
 
 var padding = 60;
 
@@ -24,10 +24,10 @@ d3.json("terrorism_attacks.json").then(function (data) {
   gen_line_chart();
   gen_circle_packing();
 
-  prepare_buttons();
+  gen_parallel_coordinates();
+  //prepare_buttons();
 
 });
-gen_parallel_coordinates();
 
 
 
@@ -195,7 +195,7 @@ function gen_parallel_coordinates() {
     height = 200 - margin.top - margin.bottom;
   
 
-  d3.csv("dataGroupedByCountry.csv").then(function(data){
+  d3.csv("dataGrouped.csv").then(function(data){
     
 
     
@@ -211,10 +211,10 @@ function gen_parallel_coordinates() {
     var selected_country = "Portugal";
 
     var dimensions = [
+        "Fatalities",
         "Attacks",
-        "GDP avg.",
-        "Police",
-        "Fatalities"
+        "Military",
+        "Police"
     ];
     
 
@@ -253,7 +253,7 @@ function gen_parallel_coordinates() {
         console.log(d.Fatalities);
         console.log(d.Police);*/
 
-        return ((d.Attacks != -1 && d.Fatalities != -1) && (d["GDP avg."] != -1 && d.Police != -1))
+        return ((d.Attacks != -1 && d.Fatalities != -1) && (d["Military"] != -1 && d.Police != -1))
 
     });
     // Draw the lines
@@ -369,7 +369,7 @@ function button_deaths(){
     .text("Fatalities");*/  
 }
 
-function button_events(){  
+function button_attacks(){  
   //Choropleth    
     var dataGroup = d3.rollup(dataset, v=>v.length,d=>d["Country Name"]);   
     var colorScale = d3.scaleThreshold()     
@@ -438,7 +438,7 @@ function button_events(){
 
 function prepare_buttons() {  
   d3.select("#deaths").on("click", function () {button_deaths();}); 
-  d3.select("#events").on("click", function () {button_events();});
+  d3.select("#attacks").on("click", function () {button_attacks();});
 
   prepare_buttons();
 }
