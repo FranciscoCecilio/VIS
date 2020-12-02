@@ -64,3 +64,18 @@ div.idiom_pc {
   border-style:dotted;
   border-color:coral;
 }
+
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+.axisSteelBlue text{
+  fill: steelblue;
+}
+
+.axisRed text{
+  fill: red;
+}

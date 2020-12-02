@@ -93,35 +93,41 @@ function gen_choropleth_map(){
     });
 }
 
-
-
 function gen_line_chart() {
-  var margin = {top: 30, right: 10, bottom: 10, left: 0},
-  width = 1500,
-  height = 300;
+d3.json("security.json").then(function(datasetSecurity) {
+  // set the dimensions and margins of the graph
+  var margin = {top: 60, right: 60, bottom: 60, left: 60},
+  width = 1500 - margin.left - margin.right,
+  height = 300 - margin.top - margin.bottom;
 
-  svg_line_chart = d3
-    .select("#line_chart")
-    .append("svg") // we are appending an svg to the div 'line_chart'
-    .attr("width", width)
-    .attr("height", height);
+  // append the svg obgect to the body of the page
+  // appends a 'group' element to 'svg'
+  // moves the 'group' element to the top left margin
+  var svg_line_chart = d3.select("#line_chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
 
-  d3.json("security.json").then(function (datasetSecurity) {
-      var xscaleData = datasetSecurity.map((a) => a.Date);
-      var xscale = d3
-        .scalePoint()
-        .domain(xscaleData)
-        .range([padding, width - padding]);
-     
-//eixo do y da esquerda
-  dataGroup= d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date);
-  var hscale = d3.scaleLinear()
-    .domain([0,d3.max(dataGroup.values()),])
-    .range([height - padding, padding]);
+  // Get the data
+  var dataGroupy0= d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date);
+  var dataGroupy1= d3.rollup(datasetSecurity, v=>d3.mean(v, d=>d.Value),d=>d.Date,d=>d["Indicator Name"]);
 
-  svg_line_chart
+  // set the ranges
+  var x = d3.scalePoint().range([0, width]);
+  var y0 = d3.scaleLinear().range([height, 0]);
+  var y1 = d3.scaleLinear().range([height, 0]);
+// Scale the range of the data
+  x.domain(datasetSecurity.map((a) => a.Date));
+  y0.domain([0, d3.max(dataGroupy0.values())]);
+  y1.domain([0, d3.max(dataGroupy1.values()).get("Military expenditure (% of GDP)")]);
+
+  
+  
+  var line1 = svg_line_chart
     .append("path")
-    .datum(dataGroup)
+    .datum(dataGroupy0)
     .attr("fill", "none")
     .attr("stroke", "orange")
     .attr("stroke-width", 1)
@@ -130,59 +136,16 @@ function gen_line_chart() {
       d3
         .line()
         .x(function (d) {
-          return xscale(d[0]);
+          return x(d[0]);
         })
         .y(function (d) {
-          return hscale(d[1]);
+          return y0(d[1]);
         })
     );
 
-  var yaxis = d3
-    .axisLeft() // we are creating a d3 axis
-    .scale(hscale) // fit to our scale
-    .tickFormat(d3.format(".2s")) // format of each year
-    .tickSizeOuter(0);
-
-  svg_line_chart
-    .append("g") // we are creating a 'g' element to match our yaxis
-    .attr("transform", "translate(" + padding + ",0)")
-    .attr("class", "yaxis") // we are giving it a css style
-    .call(yaxis);
-
-  svg_line_chart
-    .append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 0)
-    .attr("x", 0 - height / 2)
-    .attr("dy", "1em")
-    .attr("class", "label")
-    .text("Fatalities");
-
-//eixo X
-  var xscaleDataFiltered = xscaleData.filter(function (d, i) {
-    if (i % 5 == 0) return d;
-  });
-
-  var xaxis = d3
-    .axisBottom() // we are creating a d3 axis
-    .scale(xscale) // we are adding our padding
-    .tickValues(xscaleDataFiltered)
-    .tickSizeOuter(0);
-
-  svg_line_chart
-    .append("g") // we are creating a 'g' element to match our x axis
-    .attr("transform", "translate(0," + (height - padding) + ")")
-    .attr("class", "xaxis") // we are giving it a css style
-    .call(xaxis);
-
-// eixo dos y da direita  
-  dataGroupRight= d3.rollup(datasetSecurity, v=>d3.mean(v, d=>d.Value),d=>d.Date,d=>d["Indicator Name"]);
-  var hscaleRight = d3.scaleLinear()
-    .domain([0,d3.max(dataGroupRight.values()).get("Military expenditure (% of GDP)"),])
-    .range([height - padding, padding]);
-  svg_line_chart
+  var line2 = svg_line_chart
     .append("path")
-    .datum(dataGroupRight)
+    .datum(dataGroupy1)
     .attr("fill", "none")
     .attr("stroke", "seagreen")
     .attr("stroke-width", 1)
@@ -191,47 +154,79 @@ function gen_line_chart() {
       d3
         .line()
         .x(function (d) {
-          return xscale(d[0]);
+          return x(d[0]);
         })
         .y(function (d) {
-          return hscaleRight(d[1].get("Military expenditure (% of GDP)"));
+          return y1(d[1].get("Military expenditure (% of GDP)"));
         })
     );
-  
-  var yaxisRight = d3
-    .axisRight() // we are creating a d3 axis
-    .scale(hscaleRight) // fit to our scale
-    .tickFormat(d3.format(".2s")) // format of each year
-    .tickSizeOuter(0);
 
-  svg_line_chart
-    .append("g") // we are creating a 'g' element to match our yaxis
-    .attr("transform", "translate(" + padding + ",0)")
-    .attr("class", "yaxis") // we are giving it a css style
-    .call(yaxisRight);
+  // Add the X Axis
+  var axisX = svg_line_chart.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x)/*.ticks(29)*/);
 
-  svg_line_chart
-    .append("text")
-    .attr("transform", "rotate(90)")
-    .attr("y", 0)
-    .attr("x", 0 - height / 2)
-    .attr("dy", "1em")
-    .attr("class", "label")
-    .text("Military");
-  
+  // Add the Y0 Axis
+  var axisY0 = svg_line_chart.append("g")
+      .attr("class", "axisSteelBlue")
+      .call(d3.axisLeft(y0));
 
-  // text label for the x axis
-  svg_line_chart
-    .append("text")
-    .attr(
-      "transform",
-      "translate(" + width/2 + " ," + (height - padding / 3) + ")"
-    )
-    .attr("class", "label")
-    .text("Year");
+  // Add the Y1 Axis
+  var axisY1 = svg_line_chart.append("g")
+      .attr("class", "axisRed")
+      .attr("transform", "translate( " + width + ", 0 )")
+      .call(d3.axisRight(y1));
+
+  d3.select("#deaths").on("click", function () {
+      button_deaths();//do the map
+      var dataGroup= d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date);     
+
+      y0.domain([0, d3.max(dataGroup.values())]);
+      axisY0.call(d3.axisLeft(y0));
+      line1
+        .datum(dataGroup)
+        .transition()
+        .duration(1000)
+        .attr("stroke", "orange")
+        .attr(
+          "d",
+          d3
+            .line()
+            .x(function (d) {
+              return x(d[0]);
+            })
+            .y(function (d) {
+              return y0(d[1]);
+            })
+        );
+  }); 
+  d3.select("#attacks").on("click", function () {
+      button_attacks();//do the map
+      var dataGroup= d3.rollup(dataset, v=>v.length, d=>d.Date);   
+
+      y0.domain([0, d3.max(dataGroup.values())]);
+      axisY0.call(d3.axisLeft(y0));
+      line1
+        .datum(dataGroup)
+        .transition()
+        .duration(1000)
+        .attr("stroke", "steelblue")
+        .attr(
+          "d",
+          d3
+            .line()
+            .x(function (d) {
+              return x(d[0]);
+            })
+            .y(function (d) {
+              return y0(d[1]);
+            })
+        );
   });
-}
 
+});
+
+}
 
 function gen_parallel_coordinates() {
   var margin = {top: 30, right: 10, bottom: 10, left: 0},
@@ -347,243 +342,40 @@ function gen_circle_packing() {
 
 
 function button_deaths(){ 
+    //Choropleth
     var dataGroup = d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d["Country Name"]);    
     var colorScale = d3.scaleThreshold()      
                     .domain([10, 100, 1000, 10000, 10000, 100000])                      
                     .range(d3.schemeReds[6]);                    
           
     // Update      
-    svg_choropleth_map      
+    svg_choropleth_map
+      .transition()
+      .duration(1000)      
       .selectAll("path")        
       .attr("fill", function (d) {        
           d.total = dataGroup.get(d.properties.name) || 0;            
           return colorScale(d.total);           
       });
-
-
-  //Line chart  
-  width = 1500,
-  height = 300;
-  d3.json("security.json").then(function (datasetSecurity) {
-      var xscaleData = datasetSecurity.map((a) => a.Date);
-      var xscale = d3
-        .scalePoint()
-        .domain(xscaleData)
-        .range([padding, width - padding]);
-//eixo da esquerda
-  dataGroup= d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date); 
-
-  var hscale = d3 
-    .scaleLinear()  
-    .domain([ 
-      0,  
-      d3.max(dataGroup.values()), 
-    ])  
-    .range([300 - padding, padding]);  
-
-  svg_line_chart  
-    .select("path") 
-    .datum(dataGroup) 
-    .attr("fill", "none") 
-    .attr("stroke", "tomato")  
-    .attr("stroke-width", 1)  
-    .attr(  
-      "d",  
-      d3  
-        .line() 
-        .x(function (d) { 
-          return xscale(d[0]);  
-        })  
-        .y(function (d) { 
-          return hscale(d[1]);  
-        })  
-    );  
-
-  var yaxis = d3  
-    .axisLeft() // we are creating a d3 axis  
-    .scale(hscale) // fit to our scale  
-    .tickFormat(d3.format(".2s")) // format of each year  
-    .tickSizeOuter(0);  
-
-  svg_line_chart  
-    .select("g")  
-    .attr("transform", "translate(" + padding + ",0)")  
-    .attr("class", "yaxis") // we are giving it a css style 
-    .call(yaxis); 
-
-//eixo da direita
-  dataGroupRight= d3.rollup(datasetSecurity, v=>d3.mean(v, d=>d.Value),d=>d.Date,d=>d["Indicator Name"]);
-  var hscaleRight = d3.scaleLinear()
-    .domain([0,d3.max(dataGroupRight.values()).get("Military expenditure (% of GDP)"),])
-    .range([height - padding, padding]);
-  
-  svg_line_chart
-    .append("path")
-    .datum(dataGroupRight)
-    .attr("fill", "none")
-    .attr("stroke", "seagreen")
-    .attr("stroke-width", 1)
-    .attr(
-      "d",
-      d3
-        .line()
-        .x(function (d) {
-          return xscale(d[0]);
-        })
-        .y(function (d) {
-          return hscaleRight(d[1].get("Military expenditure (% of GDP)"));
-        })
-    );
-  
-  var yaxisRight = d3
-    .axisRight() // we are creating a d3 axis
-    .scale(hscaleRight) // fit to our scale
-    .tickFormat(d3.format(".2s")) // format of each year
-    .tickSizeOuter(0);
-
-  svg_line_chart
-    .append("g") // we are creating a 'g' element to match our yaxis
-    .attr("transform", "translate(" + padding + ",0)")
-    .attr("class", "yaxis") // we are giving it a css style
-    .call(yaxisRight);
-
-  svg_line_chart
-    .append("text")
-    .attr("transform", "rotate(90)")
-    .attr("y", 0)
-    .attr("x", 0 - height / 2)
-    .attr("dy", "1em")
-    .attr("class", "label")
-    .text("Military");
-  
-});
-/*Falta mudar o nome do Y!!!!!!!!!!!! 
-  svg_line_chart  
-    .text("Events");*/  
 }
 
 function button_attacks(){  
+  console.log("attacks");
   //Choropleth    
     var dataGroup = d3.rollup(dataset, v=>v.length,d=>d["Country Name"]);   
     var colorScale = d3.scaleThreshold()     
                     .domain([1, 10, 100, 1000, 1000, 10000])                      
                     .range(d3.schemeBlues[7]);
     // Update        
-    svg_choropleth_map     
+    svg_choropleth_map 
+      .transition()
+      .duration(1000)    
       .selectAll("path")        
       .attr("fill", function (d) {        
           d.total = dataGroup.get(d.properties.name) || 0;          
           return colorScale(d.total);           
       });
-
-
-  //Line chart  
-  width = 1500,
-  height = 300;
-  d3.json("security.json").then(function (datasetSecurity) {
-      var xscaleData = datasetSecurity.map((a) => a.Date);
-      var xscale = d3
-        .scalePoint()
-        .domain(xscaleData)
-        .range([padding, width - padding]);
-//eixo da esquerda
-  var dataGroup = d3.rollup(dataset, v=>v.length,d=>d.Date);  
-
-  var hscale = d3 
-    .scaleLinear()  
-    .domain([ 
-      0,  
-      d3.max(dataGroup.values()), 
-    ])  
-    .range([300 - padding, padding]);  
-
-  svg_line_chart  
-    .select("path") 
-    .datum(dataGroup) 
-    .attr("fill", "none") 
-    .attr("stroke", "steelblue")  
-    .attr("stroke-width", 1)  
-    .attr(  
-      "d",  
-      d3  
-        .line() 
-        .x(function (d) { 
-          return xscale(d[0]);  
-        })  
-        .y(function (d) { 
-          return hscale(d[1]);  
-        })  
-    );  
-
-  var yaxis = d3  
-    .axisLeft() // we are creating a d3 axis  
-    .scale(hscale) // fit to our scale  
-    .tickFormat(d3.format(".2s")) // format of each year  
-    .tickSizeOuter(0);  
-
-  svg_line_chart  
-    .select("g")  
-    .attr("transform", "translate(" + padding + ",0)")  
-    .attr("class", "yaxis") // we are giving it a css style 
-    .call(yaxis); 
-
-//eixo da direita
-  dataGroupRight= d3.rollup(datasetSecurity, v=>d3.mean(v, d=>d.Value),d=>d.Date,d=>d["Indicator Name"]);
-  var hscaleRight = d3.scaleLinear()
-    .domain([0,d3.max(dataGroupRight.values()).get("Military expenditure (% of GDP)"),])
-    .range([height - padding, padding]);
-  
-  svg_line_chart
-    .append("path")
-    .datum(dataGroupRight)
-    .attr("fill", "none")
-    .attr("stroke", "seagreen")
-    .attr("stroke-width", 1)
-    .attr(
-      "d",
-      d3
-        .line()
-        .x(function (d) {
-          return xscale(d[0]);
-        })
-        .y(function (d) {
-          return hscaleRight(d[1].get("Military expenditure (% of GDP)"));
-        })
-    );
-  
-  var yaxisRight = d3
-    .axisRight() // we are creating a d3 axis
-    .scale(hscaleRight) // fit to our scale
-    .tickFormat(d3.format(".2s")) // format of each year
-    .tickSizeOuter(0);
-
-  svg_line_chart
-    .append("g") // we are creating a 'g' element to match our yaxis
-    .attr("transform", "translate(" + padding + ",0)")
-    .attr("class", "yaxis") // we are giving it a css style
-    .call(yaxisRight);
-
-  svg_line_chart
-    .append("text")
-    .attr("transform", "rotate(90)")
-    .attr("y", 0)
-    .attr("x", 0 - height / 2)
-    .attr("dy", "1em")
-    .attr("class", "label")
-    .text("Military");
-  
-});
-/*Falta mudar o nome do Y!!!!!!!!!!!! 
-  svg_line_chart  
-    .text("Events");*/  
+ 
 } 
 
-function prepare_buttons() {  
-  d3.select("#deaths").on("click", function () {button_deaths();}); 
-  d3.select("#attacks").on("click", function () {button_attacks();});
-
-  prepare_buttons();
-}
-
-//test
 
