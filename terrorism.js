@@ -23,9 +23,7 @@ d3.json("terrorism_attacks.json").then(function (data) {
   gen_choropleth_map();
   gen_line_chart();
   gen_circle_packing();
-
   gen_parallel_coordinates();
-  prepare_buttons();
 
 
 });
@@ -129,7 +127,7 @@ d3.json("security.json").then(function(datasetSecurity) {
     .append("path")
     .datum(dataGroupy0)
     .attr("fill", "none")
-    .attr("stroke", "orange")
+    .attr("stroke", "indianred")
     .attr("stroke-width", 1)
     .attr(
       "d",
@@ -168,12 +166,12 @@ d3.json("security.json").then(function(datasetSecurity) {
 
   // Add the Y0 Axis
   var axisY0 = svg_line_chart.append("g")
-      .attr("class", "axisSteelBlue")
+      .attr("class", "axisRed")
       .call(d3.axisLeft(y0));
 
   // Add the Y1 Axis
   var axisY1 = svg_line_chart.append("g")
-      .attr("class", "axisRed")
+      .attr("class", "axisGreen")
       .attr("transform", "translate( " + width + ", 0 )")
       .call(d3.axisRight(y1));
 
@@ -182,12 +180,14 @@ d3.json("security.json").then(function(datasetSecurity) {
       var dataGroup= d3.rollup(dataset, v=>d3.sum(v, d=>d.Fatalities),d=>d.Date);     
 
       y0.domain([0, d3.max(dataGroup.values())]);
-      axisY0.call(d3.axisLeft(y0));
+      axisY0
+        .attr("class", "axisRed")
+        .call(d3.axisLeft(y0));
       line1
         .datum(dataGroup)
         .transition()
         .duration(1000)
-        .attr("stroke", "orange")
+        .attr("stroke", "indianRed")
         .attr(
           "d",
           d3
@@ -205,7 +205,9 @@ d3.json("security.json").then(function(datasetSecurity) {
       var dataGroup= d3.rollup(dataset, v=>v.length, d=>d.Date);   
 
       y0.domain([0, d3.max(dataGroup.values())]);
-      axisY0.call(d3.axisLeft(y0));
+      axisY0
+        .attr("class", "axisSteelBlue")
+        .call(d3.axisLeft(y0));
       line1
         .datum(dataGroup)
         .transition()
@@ -325,19 +327,100 @@ function gen_parallel_coordinates() {
 }
 
 function gen_circle_packing() {
-  var margin = {top: 30, right: 10, bottom: 10, left: 0},
-  width = 500 - margin.left - margin.right,
-  height = 500 - margin.top - margin.bottom;
+ /*   var margin = 10,
+    outerDiameter = 960,
+    innerDiameter = outerDiameter - margin - margin;
 
-  d3.json("terrorism_attacks.json").then(function(data){
-    svg_circlepacking = d3
-      .select("#circle_packing")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .append("g")
+var x = d3.scaleLinear()
+    .range([0, innerDiameter]);
 
-  });
+var y = d3.scaleLinear()
+    .range([0, innerDiameter]);
+
+var color = d3.scaleLinear()
+    .domain([-1, 5])
+    .range(["#e1f4fd", "#00aeef"])
+    .interpolate(d3.interpolateHcl);
+
+var pack = d3.pack()
+    .padding(2)
+    .size([innerDiameter, innerDiameter])
+    .value(function(d) { return d.size; })
+
+var svg_circle_packing = d3.select("#circle_packing").append("svg")
+    .attr("width", outerDiameter)
+    .attr("height", outerDiameter)
+  .append("g")
+    .attr("transform", "translate(" + margin + "," + margin + ")");
+
+d3.json("dataHierarchy.json", function(error, root) {
+  var focus = root,
+      nodes = pack.nodes(root);
+
+  svg_circle_packing.append("g").selectAll("circle")
+      .data(nodes)
+    .enter().append("circle")
+      .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      .attr("r", function(d) { return d.r; })
+      .style("fill", function(d) { return d.children ? color(d.depth) : null; })
+      .on("click", function(d) { return zoom(focus == d ? root : d); });
+
+  svg_circle_packing.append("g").selectAll("text")
+      .data(nodes)
+    .enter().append("text")
+      .attr("class", "label")
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
+      .style("display", function(d) { return d.parent === root ? null : "none"; })
+      .text(function(d) { return d.name; });
+
+  });*/
+  d3.json("dataHierarchy.json").then(function(data) {
+    var margin = {top: 30, right: 10, bottom: 10, left: 0},
+    width = 1000 - margin.left - margin.right,
+
+    height = 500 - margin.top - margin.bottom;
+
+    var packLayout = d3.pack()
+      .size([300, 300]);
+
+    var rootNode = d3.hierarchy(data)
+
+    console.log(rootNode);
+    console.log(rootNode.descendants());
+    rootNode.sum(function(d) {
+      return d.Total;
+    });
+
+    packLayout(rootNode);
+    
+    var svg_circle_packing = d3.select("#circle_packing")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+    svg_circle_packing 
+      .selectAll('g')
+      .data(rootNode.descendants())
+      .enter()
+      .append('g')
+      .attr('transform', function(d) {console.log(d);return 'translate(' + [d.x, d.y] + ')'})
+
+    svg_circle_packing
+      .append('circle')
+      .attr('r', function(d) { console.log(d);/*return d.r; */})
+
+    svg_circle_packing
+      .append('text')
+      .attr('dy', 4)
+      .text(function(d) {
+        console.log(d);return d.children === undefined ? d.data.name : '';
+      })
+    });
 }
 
 
@@ -360,7 +443,6 @@ function button_deaths(){
 }
 
 function button_attacks(){  
-  console.log("attacks");
   //Choropleth    
     var dataGroup = d3.rollup(dataset, v=>v.length,d=>d["Country Name"]);   
     var colorScale = d3.scaleThreshold()     
