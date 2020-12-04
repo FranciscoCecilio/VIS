@@ -376,51 +376,53 @@ d3.json("dataHierarchy.json", function(error, root) {
       .text(function(d) { return d.name; });
 
   });*/
-  d3.json("dataHierarchy.json").then(function(data) {
-    var margin = {top: 30, right: 10, bottom: 10, left: 0},
-    width = 1000 - margin.left - margin.right,
 
-    height = 500 - margin.top - margin.bottom;
 
-    var packLayout = d3.pack()
-      .size([300, 300]);
+/*    var svg_circle_packing = d3.select("#circle_packing"),
+    margin = 20,
+    diameter = +svg_circle_packing.attr("width"),
+    g = svg_circle_packing.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
-    var rootNode = d3.hierarchy(data)
+var color = d3.scaleLinear()
+    .domain([-1, 5])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
 
-    console.log(rootNode);
-    console.log(rootNode.descendants());
-    rootNode.sum(function(d) {
-      return d.Total;
-    });
+var pack = d3.pack()
+    .size([diameter - margin, diameter - margin])
+    .padding(2);
 
-    packLayout(rootNode);
-    
-    var svg_circle_packing = d3.select("#circle_packing")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+d3.json("dataHierarchy.json").then(function(root) {
 
-    svg_circle_packing 
-      .selectAll('g')
-      .data(rootNode.descendants())
-      .enter()
-      .append('g')
-      .attr('transform', function(d) {console.log(d);return 'translate(' + [d.x, d.y] + ')'})
+  root = d3.hierarchy(root)
+      .sum(function(d) { return d.size; })
+      .sort(function(a, b) { return b.value - a.value; });
 
-    svg_circle_packing
-      .append('circle')
-      .attr('r', function(d) { console.log(d);/*return d.r; */})
+  var focus = root,
+      nodes = pack(root).descendants(),
+      view;
 
-    svg_circle_packing
-      .append('text')
-      .attr('dy', 4)
-      .text(function(d) {
-        console.log(d);return d.children === undefined ? d.data.name : '';
-      })
-    });
+  var circle = g.selectAll("circle")
+    .data(nodes)
+    .enter().append("circle")
+      .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
+      .style("fill", function(d) { return d.children ? color(d.depth) : null; })
+      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
+
+  var text = g.selectAll("text")
+    .data(nodes)
+    .enter().append("text")
+      .attr("class", "label")
+      .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
+      .style("display", function(d) { return d.parent === root ? "inline" : "none"; })
+      .text(function(d) { return d.data.name; });
+
+  var node = g.selectAll("circle,text");
+ svg_circle_packing
+      .style("background", color(-1))
+      .on("click", function() { zoom(root); });
+
+});*/
 }
 
 
