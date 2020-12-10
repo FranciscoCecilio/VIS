@@ -12,12 +12,23 @@
 
 <body>
     <h1>Terrorist attacks detailed!</h1>
-    <div>
+    <!--div>
         <button type="button" class="btn" id="deaths">Deaths</button>
         <button type="button" class="btn" id="attacks">Attacks</button>
-    </div>
+    </div-->
     <div id="dashboard">
-        <div class="idiom_map" id="choropleth_map" style="max-width: 1000px; float: left"></div>
+        <div class="idiom_map" id="choropleth_map" style="max-width: 1000px; float: left">
+            <div class=container_radios>
+                <label class="container" >Deaths
+                    <input id="deaths_r" type="radio" checked="checked" name="radio">
+                    <span class="checkmark"></span>
+                </label>
+                <label id="attacks_r" class="container">Attacks
+                    <input type="radio" name="radio">
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+        </div>
         <div class="idiom_cp" id="circle_packing" style="max-width: 510px; float: left"><img src="preview.png" width="700" height="460"></div>
         <div class="idiom_lc" id="line_chart" style="max-width: 1500px; float: left"></div>
         <div class="idiom_pc" id="parallel_coordinates" style="max-width: 1500px; float: left"></div>

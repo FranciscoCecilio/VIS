@@ -3,7 +3,7 @@ var dataset, full_dataset, datasetSecurity;
 var padding = 60;
 
 var svg_choropleth_map, svg_circle_packing, svg_line_chart, svg_parallel_coordinates;
-
+var gradient_red, gradient_blue;
 
 var radius = 5;
 
@@ -46,6 +46,49 @@ function gen_choropleth_map() {
     var colorScale = d3.scaleThreshold()
         .domain([10, 100, 1000, 10000, 10000, 100000])
         .range(d3.schemeReds[6]);
+
+    breaks = [0.10, 0.300, 0.5000, 0.70000, 0.80000, 1.00000]
+    colors = d3.schemeReds[6]
+
+    gradient_red = svg_choropleth_map.append("defs")
+    .append("linearGradient")
+        .attr("id", "gradient_red")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "0%")
+        .attr("y2", "100%")
+        .attr("spreadMethod", "pad");
+
+    gradient_red.selectAll("stop") 
+        .data(d3.zip(breaks, colors))
+        .enter().append("stop")
+        .attr("offset", function(d) { return d[0]; })   
+        .attr("stop-color", function(d) { return d[1]; });
+
+
+    gradient_blue = svg_choropleth_map.append("defs")
+        .append("linearGradient")
+            .attr("id", "gradient_blue")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y2", "100%")
+            .attr("spreadMethod", "pad");
+
+    breaks = [0.10, 0.300, 0.5000, 0.70000, 0.80000, 1.00000]
+    colors = d3.schemeBlues[6]
+    gradient_blue.selectAll("stop") 
+            .data(d3.zip(breaks, colors))
+            .enter().append("stop")
+            .attr("offset", function(d) { return d[0]; })   
+            .attr("stop-color", function(d) { return d[1]; });
+
+    svg_choropleth_map.append("rect")
+            .attr("class", "linearLegend")
+            .attr("transform", "translate(38,270)")
+            .attr("width", 20)
+            .attr("height", 150)
+            .style("fill", "url(#gradient_blue)");
 
     d3.json("world.json").then(function(topology) {
         let mouseOver = function(d) {
@@ -122,8 +165,6 @@ function gen_line_chart() {
         y0.domain([0, d3.max(dataGroupy0.values())]);
         y1.domain([0, d3.max(dataGroupy1.values()).get("Military expenditure (% of GDP)")]);
 
-
-
         var line1 = svg_line_chart
             .append("path")
             .datum(dataGroupy0)
@@ -180,7 +221,7 @@ function gen_line_chart() {
             .call(d3.axisRight(y1));
 
         //Buttons changing the line chart
-        d3.select("#deaths").on("click", function() {
+        d3.select("#deaths_r").on("click", function() {
             button_deaths(); //do the map
             var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d.Date);
 
@@ -205,7 +246,7 @@ function gen_line_chart() {
                     })
                 );
         });
-        d3.select("#attacks").on("click", function() {
+        d3.select("#attacks_r").on("click", function() {
             button_attacks(); //do the map
             var dataGroup = d3.rollup(dataset, v => v.length, d => d.Date);
 
@@ -438,6 +479,9 @@ function button_deaths() {
         .domain([10, 100, 1000, 10000, 10000, 100000])
         .range(d3.schemeReds[6]);
 
+    svg_choropleth_map.select("rect")
+        .style("fill", "url(#gradient_red)");
+
     // Update      
     svg_choropleth_map
         .transition()
@@ -454,7 +498,21 @@ function button_attacks() {
     var dataGroup = d3.rollup(dataset, v => v.length, d => d["Country Name"]);
     var colorScale = d3.scaleThreshold()
         .domain([1, 10, 100, 1000, 1000, 10000])
-        .range(d3.schemeBlues[7]);
+        .range(d3.schemeBlues[6]);
+
+    breaks = [0.10, 0.300, 0.5000, 0.70000, 0.80000, 1.00000]
+    colors = d3.schemeBlues[6]
+
+    svg_choropleth_map.select("defs")
+        .selectAll("stop") 
+        .data(d3.zip(breaks, colors))                  
+        .enter().append("stop")
+        .attr("offset", function(d) { return d[0]; })   
+        .attr("stop-color", function(d) { return d[1]; });
+
+    svg_choropleth_map.select("rect")
+        .style("fill", "url(#gradient_blue)");
+
     // Update        
     svg_choropleth_map
         .transition()
