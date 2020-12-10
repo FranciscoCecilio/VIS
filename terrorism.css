@@ -133,6 +133,9 @@ div.idiom_pc {
 
 /* When the radio button is checked, add a blue background */
 .container input:checked ~ .checkmark {
+  background-color: #ff5050;
+}
+#attacks_r input:checked ~ .checkmark {
   background-color: #2196F3;
 }
 
