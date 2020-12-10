@@ -88,7 +88,7 @@ function gen_choropleth_map() {
             .attr("transform", "translate(38,270)")
             .attr("width", 20)
             .attr("height", 150)
-            .style("fill", "url(#gradient_blue)");
+            .style("fill", "url(#gradient_red)");
 
     d3.json("world.json").then(function(topology) {
         let mouseOver = function(d) {
@@ -482,7 +482,7 @@ function button_deaths() {
     svg_choropleth_map.select("rect")
         .style("fill", "url(#gradient_red)");
 
-    // Update      
+    // Update
     svg_choropleth_map
         .transition()
         .duration(1000)
