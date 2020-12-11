@@ -52,12 +52,22 @@ function gen_choropleth_map() {
         .attr("width", width)
         .attr("height", height);
 
-
     var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]);
+    console.log(dataGroup)
+    var max_attacks = d3.max(dataGroup, function(d){
+        return +d[1]; //<-- convert to number
+      })
+
+    domain = d3.range(0,max_attacks, 2000)
+    console.log(max_attacks)
+    console.log(domain)
+
+
     var colorScale = d3.scaleThreshold()
         .domain([10, 100, 1000, 10000, 10000, 100000])
         .range(d3.schemeReds[6]);
 
+    
     breaks = [0.10, 0.300, 0.5000, 0.70000, 0.80000, 1.00000]
     colors = d3.schemeReds[6]
 
@@ -101,6 +111,22 @@ function gen_choropleth_map() {
             .attr("height", 150)
             .style("fill", "url(#gradient_red)");
 
+    var legend = svg_choropleth_map.selectAll("#gradient_red")
+                        .data(breaks)
+                        .enter()
+                        .append('text')
+                        .attr("font-family", "Arial")
+                        .attr("font-weight", "bold")
+                        .attr("x", function(d,i) {
+                            return 70;
+                        })
+                        .attr("y", function(d,i) {
+                            return 255 + i*32;
+                        })
+                        .text(function(d) {
+                            return d;
+                        });
+    
     d3.json("world.json").then(function(topology) {
         let mouseOver = function(d) {
             if (selectedCountries.length == 0) {
