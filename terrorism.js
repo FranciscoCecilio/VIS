@@ -17,6 +17,15 @@ var test;
 
 var selectedCountries = [];
 
+//line chart
+var linesOriginal =[];
+
+var linesDrawNames = [];
+var linesDraw=[];
+
+var x, y0, y1;
+//
+
 
 d3.json("terrorism_attacks.json").then(function(data) {
     full_dataset = data; // this variable is always the full dataset
@@ -115,7 +124,6 @@ function gen_choropleth_map() {
             if (selectedCountries.length == 0) {
               svg_choropleth_map
                 .selectAll("path")
-
                 .style("opacity", 1)
                 .style("stroke", "transparent")
             } else{
@@ -129,23 +137,18 @@ function gen_choropleth_map() {
 
         let click = function(event,d) {
             if (selectedCountries.includes(d.properties.name)) {
-                //selectedCountries.pop(d.properties.name);
-                console.log("SC: "+selectedCountries);
                 var index = selectedCountries.indexOf(d.properties.name);
-                selectedCountries.splice(index, 1);
-                
+                selectedCountries.splice(index, 1);             
                 d3.select(event.target)
-
                   .style("opacity", 0.5)
                   .style("stroke", "black")
             }else{
               selectedCountries.push(d.properties.name);
               d3.select(event.target)
-
                   .style("opacity", 0.98)
                   .style("stroke", "black")
               }
-              console.log(selectedCountries);
+            renderLineChart(d.properties.name);
         }
 
 
@@ -182,7 +185,7 @@ function gen_line_chart() {
         // append the svg obgect to the body of the page
         // appends a 'group' element to 'svg'
         // moves the 'group' element to the top left margin
-        var svg_line_chart = d3.select("#line_chart").append("svg")
+        svg_line_chart = d3.select("#line_chart").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -194,15 +197,15 @@ function gen_line_chart() {
         var dataGroupy1 = d3.rollup(datasetSecurity, v => d3.mean(v, d => d.Value), d => d.Date, d => d["Indicator Name"]);
 
         // set the ranges
-        var x = d3.scalePoint().range([0, width]);
-        var y0 = d3.scaleLinear().range([height, 0]);
-        var y1 = d3.scaleLinear().range([height, 0]);
+        x = d3.scalePoint().range([0, width]);
+        y0 = d3.scaleLinear().range([height, 0]);
+        y1 = d3.scaleLinear().range([height, 0]);
         // Scale the range of the data
         x.domain(datasetSecurity.map((a) => a.Date));
         y0.domain([0, d3.max(dataGroupy0.values())]);
         y1.domain([0, d3.max(dataGroupy1.values()).get("Military expenditure (% of GDP)")]);
 
-        var line1 = svg_line_chart
+        linesOriginal.push(svg_line_chart
             .append("path")
             .datum(dataGroupy0)
             .attr("fill", "none")
@@ -218,9 +221,9 @@ function gen_line_chart() {
                 .y(function(d) {
                     return y0(d[1]);
                 })
-            );
+            ));
 
-        var line2 = svg_line_chart
+        linesOriginal.push(svg_line_chart
             .append("path")
             .datum(dataGroupy1)
             .attr("fill", "none")
@@ -236,7 +239,7 @@ function gen_line_chart() {
                 .y(function(d) {
                     return y1(d[1].get("Military expenditure (% of GDP)"));
                 })
-            );
+            ));
 
         // Add the X Axis
         let xAxisGenerator = d3.axisBottom(x);
@@ -266,7 +269,7 @@ function gen_line_chart() {
             axisY0
                 .attr("class", "axisRed")
                 .call(d3.axisLeft(y0).ticks(5));
-            line1
+            linesOriginal[0]
                 .datum(dataGroup)
                 .transition()
                 .duration(1000)
@@ -291,7 +294,7 @@ function gen_line_chart() {
             axisY0
                 .attr("class", "axisSteelBlue")
                 .call(d3.axisLeft(y0).ticks(5));
-            line1
+            linesOriginal[0]
                 .datum(dataGroup)
                 .transition()
                 .duration(1000)
@@ -380,7 +383,7 @@ function gen_parallel_coordinates() {
             return ((d.Attacks != -1 && d.Fatalities != -1) && (d["Military"] != -1 && d.Police != -1))
 
         });
-        // Draw the lines
+        // Draw the linesOriginal
         svg_pc
             .selectAll("myPath")
             .data(data_filtered)
@@ -560,4 +563,37 @@ function button_attacks() {
             return colorScale(d.total);
         });
 
+}
+
+function renderLineChart(countryName) {
+  if (selectedCountries.length == 0)  {
+    linesOriginal[0].style("opacity", 1);
+    linesOriginal[1].style("opacity", 1);
+  }
+  if (linesDrawNames.length == 0)  {
+    linesOriginal[0].style("opacity", 0);
+    linesOriginal[1].style("opacity", 0);
+  }
+  if (linesDrawNames.includes(countryName))  {
+    var index = linesDrawNames.indexOf(countryName);
+    linesDraw[index].remove();
+    linesDrawNames.splice(index, 1); 
+    linesDraw.splice(index, 1);
+  }else{
+
+
+
+  var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]==countryName, d => d.Date);
+  linesDrawNames.push(countryName);
+  linesDraw.push(svg_line_chart
+            .append("path")
+            .datum(dataGroup.get(true))
+            .attr("fill", "none")
+            .attr("stroke", "indianred")
+            .attr("stroke-width", 1)
+            .attr("d",d3.line()
+                      .x(function(d) { return x(d[0]);})
+                      .y(function(d) { return y0(d[1]);}))
+  );
+}
 }
