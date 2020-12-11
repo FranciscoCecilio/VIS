@@ -15,6 +15,8 @@ var context = 0; // 0 - Reset; 1 - New; 2 - Old.
 
 var test;
 
+var selectedCountries = [];
+
 
 d3.json("terrorism_attacks.json").then(function(data) {
     full_dataset = data; // this variable is always the full dataset
@@ -92,26 +94,64 @@ function gen_choropleth_map() {
 
     d3.json("world.json").then(function(topology) {
         let mouseOver = function(d) {
-            d3.selectAll(".Country")
+            if (selectedCountries.length == 0) {
+              svg_choropleth_map  
+                .selectAll("path")
                 .transition()
                 .duration(200)
                 .style("opacity", .5)
-            d3.select(this)
-                .transition()
-                .duration(200)
-                .style("opacity", 1)
-                .style("stroke", "black")
+                .style("stroke", "transparent")
+              d3.select(this)
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 1)
+                  .style("stroke", "black")
+            }else{
+                if(this.style.opacity == 0.5) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .style("stroke", "black")
+              }
+            }
         }
 
         let mouseLeave = function(d) {
-            d3.selectAll(".Country")
+            if (selectedCountries.length == 0) {
+              svg_choropleth_map
+                .selectAll("path")
                 .transition()
                 .duration(200)
-                .style("opacity", .8)
-            d3.select(this)
-                .transition()
-                .duration(200)
+                .style("opacity", 1)
                 .style("stroke", "transparent")
+            } else{
+              if (this.style.opacity != 0.98) {
+              d3.select(this)
+                .transition()
+                .duration(200)
+                .style("opacity", 0.5)
+                .style("stroke", "transparent")}
+            }
+        }
+
+        let click = function(event,d) {
+            if (selectedCountries.includes(d.properties.name)) {
+                selectedCountries.pop(d.properties.name);
+                d3.select(event.target)
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 0.5)
+                  .style("stroke", "black")
+            }else{
+              selectedCountries.push(d.properties.name);
+              d3.select(event.target)
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 0.98)
+                  .style("stroke", "black")
+              }
+              console.log(selectedCountries);
         }
 
 
@@ -129,6 +169,9 @@ function gen_choropleth_map() {
             })
             .on("mouseover", mouseOver)
             .on("mouseleave", mouseLeave)
+            .on("click",(function(event,d) {
+                click(event,d);
+            }))
             .append("title").text(function(d) {
                 return d.properties.name;
             });
