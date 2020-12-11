@@ -43,13 +43,22 @@ function gen_choropleth_map() {
         .attr("width", width)
         .attr("height", height);
 
-
     var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]);
+    console.log(dataGroup)
+    var max_attacks = d3.max(dataGroup, function(d){
+        return +d[1]; //<-- convert to number
+      })
+
+    domain = d3.range(0,max_attacks, 2000)
+    console.log(max_attacks)
+    console.log(domain)
+
+
     var colorScale = d3.scaleThreshold()
         .domain([10, 100, 1000, 10000, 10000, 100000])
         .range(d3.schemeReds[6]);
 
-    domain = [10, 100, 1000, 10000, 10000, 100000]
+    
     breaks = [0.10, 0.300, 0.5000, 0.70000, 0.80000, 1.00000]
     colors = d3.schemeReds[6]
 
@@ -94,7 +103,7 @@ function gen_choropleth_map() {
             .style("fill", "url(#gradient_red)");
 
     var legend = svg_choropleth_map.selectAll("#gradient_red")
-                        .data(domain)
+                        .data(breaks)
                         .enter()
                         .append('text')
                         .attr("font-family", "Arial")
