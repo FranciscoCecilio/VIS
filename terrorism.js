@@ -97,20 +97,14 @@ function gen_choropleth_map() {
             if (selectedCountries.length == 0) {
               svg_choropleth_map  
                 .selectAll("path")
-                .transition()
-                .duration(200)
                 .style("opacity", .5)
                 .style("stroke", "transparent")
               d3.select(this)
-                  .transition()
-                  .duration(200)
                   .style("opacity", 1)
                   .style("stroke", "black")
             }else{
                 if(this.style.opacity == 0.5) {
                 d3.select(this)
-                    .transition()
-                    .duration(200)
                     .style("opacity", 1)
                     .style("stroke", "black")
               }
@@ -121,15 +115,13 @@ function gen_choropleth_map() {
             if (selectedCountries.length == 0) {
               svg_choropleth_map
                 .selectAll("path")
-                .transition()
-                .duration(200)
+
                 .style("opacity", 1)
                 .style("stroke", "transparent")
             } else{
               if (this.style.opacity != 0.98) {
               d3.select(this)
-                .transition()
-                .duration(200)
+
                 .style("opacity", 0.5)
                 .style("stroke", "transparent")}
             }
@@ -137,17 +129,19 @@ function gen_choropleth_map() {
 
         let click = function(event,d) {
             if (selectedCountries.includes(d.properties.name)) {
-                selectedCountries.pop(d.properties.name);
+                //selectedCountries.pop(d.properties.name);
+                console.log("SC: "+selectedCountries);
+                var index = selectedCountries.indexOf(d.properties.name);
+                selectedCountries.splice(index, 1);
+                
                 d3.select(event.target)
-                  .transition()
-                  .duration(200)
+
                   .style("opacity", 0.5)
                   .style("stroke", "black")
             }else{
               selectedCountries.push(d.properties.name);
               d3.select(event.target)
-                  .transition()
-                  .duration(200)
+
                   .style("opacity", 0.98)
                   .style("stroke", "black")
               }
