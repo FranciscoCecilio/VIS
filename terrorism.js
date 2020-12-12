@@ -25,7 +25,17 @@ var linesDraw=[];
 var x, y0, y1;
 var axisX, axisY0, axisY1;
 //
+//parallel coordinates
+ var xPC, yPC;
 
+ var linesPC;
+ var dimensions = [
+            "Fatalities",
+            "Attacks",
+            "Military",
+            "Police"
+        ];
+//
 
 d3.json("terrorism_attacks.json").then(function(data) {
     full_dataset = data; // this variable is always the full dataset
@@ -175,6 +185,7 @@ function gen_choropleth_map() {
                   .style("stroke", "black")
               }
             renderLineChart(d.properties.name);
+            renterParallelCoordinates();
         }
 
 
@@ -297,54 +308,38 @@ function gen_parallel_coordinates() {
         //DEBUG PURPOSES
         var selected_country = "Portugal";
 
-        var dimensions = [
-            "Fatalities",
-            "Attacks",
-            "Military",
-            "Police"
-        ];
 
-
+        data_filtered = data.filter(function(d) {
+            return ((d.Attacks != -1 && d.Fatalities != -1) && (d["Military"] != -1 && d.Police != -1))
+        });
         // For each dimension, I build a linear scale. I store all in a y object
-        var y = {}
+        yPC = {}
         for (i in dimensions) {
             name = dimensions[i]
-            scale = [0, d3.max(data, function(d) { return +d[name]; })];
+            scale = [0, d3.max(data_filtered, function(d) { return +d[name]; })];
 
-            y[name] = d3.scaleLinear()
+            yPC[name] = d3.scaleLinear()
                 .domain(scale) // --> Same axis range for each group
                 // --> different axis range for each group --> .domain( [d3.extent(data, function(d) { return +d[name]; })] )
                 .range([height, 0])
         }
 
         // Build the X scale -> it find the best position for each Y axis
-        x = d3.scalePoint()
+        xPC = d3.scalePoint()
             .range([0, width])
             .padding(0.5)
             .domain(dimensions);
 
-
-
-
         // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
         function path(d) {
             return d3.line()(dimensions.map(function(p) {
-                return [x(p), y[p](d[p])];
+                return [xPC(p), yPC[p](d[p])];
             }));
             //return d3.line()([5,7]);
         }
 
-        data_filtered = data.filter(function(d) {
-            /*console.log(d.Attacks);
-            console.log(d["GDP avg."] );
-            console.log(d.Fatalities);
-            console.log(d.Police);*/
-
-            return ((d.Attacks != -1 && d.Fatalities != -1) && (d["Military"] != -1 && d.Police != -1))
-
-        });
         // Draw the linesOriginal
-        svg_pc
+        linesPC=svg_pc
             .selectAll("myPath")
             .data(data_filtered)
             .enter().append("path")
@@ -359,9 +354,9 @@ function gen_parallel_coordinates() {
             .data(dimensions).enter()
             .append("g")
             // I translate this element to its right position on the x axis
-            .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+            .attr("transform", function(d) { return "translate(" + xPC(d) + ")"; })
             // And I build the axis with the call function
-            .each(function(d) { d3.select(this).call(d3.axisLeft().scale(y[d])); })
+            .each(function(d) { d3.select(this).call(d3.axisLeft().scale(yPC[d])); })
             // Add axis title
             .append("text")
             .style("text-anchor", "middle")
@@ -688,4 +683,37 @@ function axisChangeLineChart(value){
     }
   }
 
+}
+
+function renterParallelCoordinates(){
+    // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+  function path(d) {
+      return d3.line()(dimensions.map(function(p) {
+          return [xPC(p), yPC[p](d[p])];
+      }));
+  }
+  d3.csv("dataGrouped.csv").then(function(data) {
+    var dataFiltered;
+    if (selectedCountries.length>0) {
+      dataFiltered = data.filter(function(d) {
+            return (selectedCountries.includes(d.Country) &&
+                  (d.Attacks != -1 && d.Fatalities != -1) && 
+                  (d["Military"] != -1 && d.Police != -1))
+      });
+    } else {
+      dataFiltered = data.filter(function(d) {
+        return ((d.Attacks != -1 && d.Fatalities != -1) && (d["Military"] != -1 && d.Police != -1))
+      });
+    }
+    linesPC.remove();//remove old lines
+    // Draw the linesOriginal
+    linesPC=svg_pc
+        .selectAll("myPath")
+        .data(dataFiltered)
+        .enter().append("path")
+        .attr("d", path)
+        .style("fill", "none")
+        .style("stroke", "#69b3a2")
+        .style("opacity", 0.5)
+  });
 }
