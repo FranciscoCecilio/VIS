@@ -24,6 +24,7 @@ var linesDrawNames = [];
 var linesDraw=[];
 
 var x, y0, y1;
+var axisX, axisY0, axisY1;
 //
 
 
@@ -126,7 +127,10 @@ function gen_choropleth_map() {
                         .text(function(d) {
                             return d;
                         });
-    
+    //Buttons changing the line chart
+    d3.select("#deaths_r").on("click", function() {button_deaths();})
+    d3.select("#attacks_r").on("click", function() {button_attacks();});
+
     d3.json("world.json").then(function(topology) {
         let mouseOver = function(d) {
             if (selectedCountries.length == 0) {
@@ -199,6 +203,7 @@ function gen_choropleth_map() {
                 return d.properties.name;
             });
     });
+
 }
 
 function gen_line_chart() {
@@ -237,16 +242,9 @@ function gen_line_chart() {
             .attr("fill", "none")
             .attr("stroke", "indianred")
             .attr("stroke-width", 1)
-            .attr(
-                "d",
-                d3
-                .line()
-                .x(function(d) {
-                    return x(d[0]);
-                })
-                .y(function(d) {
-                    return y0(d[1]);
-                })
+            .attr("d",d3.line()
+                .x(function(d) {return x(d[0]);})
+                .y(function(d) {return y0(d[1]);})
             ));
 
         linesOriginal.push(svg_line_chart
@@ -255,89 +253,29 @@ function gen_line_chart() {
             .attr("fill", "none")
             .attr("stroke", "seagreen")
             .attr("stroke-width", 1)
-            .attr(
-                "d",
-                d3
-                .line()
-                .x(function(d) {
-                    return x(d[0]);
-                })
-                .y(function(d) {
-                    return y1(d[1].get("Military expenditure (% of GDP)"));
-                })
+            .attr("d",d3.line()
+                .x(function(d) {return x(d[0]);})
+                .y(function(d) {return y1(d[1].get("Military expenditure (% of GDP)"));})
             ));
 
         // Add the X Axis
         let xAxisGenerator = d3.axisBottom(x);
         xAxisGenerator.tickValues(x.domain().filter((d, i) => d % 10 === 0)); // got it :)
-        var axisX = svg_line_chart.append("g")
+        axisX = svg_line_chart.append("g")
             .attr("transform", "translate(0," + height + ")")
             .call(xAxisGenerator);
         //.call(d3.axisBottom(x) /*.ticks(29)*/ );
 
         // Add the Y0 Axis
-        var axisY0 = svg_line_chart.append("g")
+        axisY0 = svg_line_chart.append("g")
             .attr("class", "axisRed")
             .call(d3.axisLeft(y0).ticks(5)); // got it :)
 
         // Add the Y1 Axis
-        var axisY1 = svg_line_chart.append("g")
+        axisY1 = svg_line_chart.append("g")
             .attr("class", "axisGreen")
             .attr("transform", "translate( " + width + ", 0 )")
             .call(d3.axisRight(y1));
-
-        //Buttons changing the line chart
-        d3.select("#deaths_r").on("click", function() {
-            button_deaths(); //do the map
-            var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d.Date);
-
-            y0.domain([0, d3.max(dataGroup.values())]);
-            axisY0
-                .attr("class", "axisRed")
-                .call(d3.axisLeft(y0).ticks(5));
-            linesOriginal[0]
-                .datum(dataGroup)
-                .transition()
-                .duration(1000)
-                .attr("stroke", "indianRed")
-                .attr(
-                    "d",
-                    d3
-                    .line()
-                    .x(function(d) {
-                        return x(d[0]);
-                    })
-                    .y(function(d) {
-                        return y0(d[1]);
-                    })
-                );
-        });
-        d3.select("#attacks_r").on("click", function() {
-            button_attacks(); //do the map
-            var dataGroup = d3.rollup(dataset, v => v.length, d => d.Date);
-
-            y0.domain([0, d3.max(dataGroup.values())]);
-            axisY0
-                .attr("class", "axisSteelBlue")
-                .call(d3.axisLeft(y0).ticks(5));
-            linesOriginal[0]
-                .datum(dataGroup)
-                .transition()
-                .duration(1000)
-                .attr("stroke", "steelblue")
-                .attr(
-                    "d",
-                    d3
-                    .line()
-                    .x(function(d) {
-                        return x(d[0]);
-                    })
-                    .y(function(d) {
-                        return y0(d[1]);
-                    })
-                );
-        });
-
     });
 
 }
@@ -557,6 +495,39 @@ function button_deaths() {
             d.total = dataGroup.get(d.properties.name) || 0;
             return colorScale(d.total);
         });
+
+    //Line Chart
+        //original lines
+        var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d.Date);
+
+        y0.domain([0, d3.max(dataGroup.values())]);
+        axisY0
+            .attr("class", "axisRed")
+            .call(d3.axisLeft(y0).ticks(5));
+        linesOriginal[0]
+            .datum(dataGroup)
+            .transition()
+            .duration(1000)
+            .attr("stroke", "indianRed")
+            .attr("d",d3.line()
+                .x(function(d) {return x(d[0]);})
+                .y(function(d) {return y0(d[1]);})
+            );
+        //selection lines
+        if (linesDraw.length>0) {
+          for (let i = 0; i < linesDraw.length; i++) {
+            var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]==linesDrawNames[i], d => d.Date);
+            linesDraw[i]
+                .datum(dataGroup.get(true))
+                .transition()
+                .duration(1000)
+                .attr("stroke", "indianRed")
+                .attr("d",d3.line()
+                    .x(function(d) {return x(d[0]);})
+                    .y(function(d) {return y0(d[1]);})
+                );
+          }
+        }
 }
 
 function button_attacks() {
@@ -588,6 +559,38 @@ function button_attacks() {
             d.total = dataGroup.get(d.properties.name) || 0;
             return colorScale(d.total);
         });
+
+    //Line chart
+        //original lines
+        var dataGroup = d3.rollup(dataset, v => v.length, d => d.Date);
+        y0.domain([0, d3.max(dataGroup.values())]);
+        axisY0
+            .attr("class", "axisSteelBlue")
+            .call(d3.axisLeft(y0).ticks(5));
+        linesOriginal[0]
+            .datum(dataGroup)
+            .transition()
+            .duration(1000)
+            .attr("stroke", "steelblue")
+            .attr("d",d3.line()
+                .x(function(d) {return x(d[0]);})
+                .y(function(d) {return y0(d[1]);})
+            );
+        //selection lines
+        if (linesDraw.length>0) {
+          for (let i = 0; i < linesDraw.length; i++) {
+            var dataGroup = d3.rollup(dataset, v => v.length, d => d["Country Name"]==linesDrawNames[i], d => d.Date);
+            linesDraw[i]
+                .datum(dataGroup.get(true))
+                .transition()
+                .duration(1000)
+                .attr("stroke", "steelblue")
+                .attr("d",d3.line()
+                    .x(function(d) {return x(d[0]);})
+                    .y(function(d) {return y0(d[1]);})
+                );
+          }
+        }
 
 }
 
