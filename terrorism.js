@@ -11,9 +11,8 @@ var dispatch;
 
 var selectedBar, selectedCircle, selectedYear;
 
-var context = 0; // 0 - Reset; 1 - New; 2 - Old.
+var context = 0; // 0 - deaths; 1 - events.
 
-var test;
 
 var selectedCountries = [];
 
@@ -54,14 +53,11 @@ function gen_choropleth_map() {
         .attr("height", height);
 
     var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]);
-    console.log(dataGroup)
     var max_attacks = d3.max(dataGroup, function(d){
         return +d[1]; //<-- convert to number
       })
 
     domain = d3.range(0,max_attacks, 2000)
-    console.log(max_attacks)
-    console.log(domain)
 
 
     var colorScale = d3.scaleThreshold()
@@ -477,6 +473,7 @@ d3.json("dataHierarchy.json", function(error, root) {
 
 
 function button_deaths() {
+    context=0;
     //Choropleth
     var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]);
     var colorScale = d3.scaleThreshold()
@@ -531,6 +528,7 @@ function button_deaths() {
 }
 
 function button_attacks() {
+    context=1;
     //Choropleth    
     var dataGroup = d3.rollup(dataset, v => v.length, d => d["Country Name"]);
     var colorScale = d3.scaleThreshold()
@@ -595,34 +593,99 @@ function button_attacks() {
 }
 
 function renderLineChart(countryName) {
-  if (selectedCountries.length == 0)  {
+  if (selectedCountries.length == 0)  {//no selected countries
+    if (context==0) {axisChangeLineChart(1200);}
+    if (context==1) {axisChangeLineChart(6500);}
     linesOriginal[0].style("opacity", 1);
     linesOriginal[1].style("opacity", 1);
   }
-  if (linesDrawNames.length == 0)  {
+  if (linesDrawNames.length == 0)  {//first selected country
+    y0.domain([0, 1]);//reset domain
     linesOriginal[0].style("opacity", 0);
     linesOriginal[1].style("opacity", 0);
   }
-  if (linesDrawNames.includes(countryName))  {
+  if (linesDrawNames.includes(countryName))  {//delete line
     var index = linesDrawNames.indexOf(countryName);
     linesDraw[index].remove();
     linesDrawNames.splice(index, 1); 
     linesDraw.splice(index, 1);
-  }else{
-
-
-
-  var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]==countryName, d => d.Date);
-  linesDrawNames.push(countryName);
-  linesDraw.push(svg_line_chart
-            .append("path")
-            .datum(dataGroup.get(true))
-            .attr("fill", "none")
-            .attr("stroke", "indianred")
-            .attr("stroke-width", 1)
-            .attr("d",d3.line()
-                      .x(function(d) { return x(d[0]);})
-                      .y(function(d) { return y0(d[1]);}))
-  );
+  }else{//add line
+    if (context==0) {
+      var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]==countryName, d => d.Date);
+      if (d3.max(dataGroup.get(true).values()) > y0.domain()[1]) {//change axis size
+        axisChangeLineChart(d3.max(dataGroup.get(true).values()));
+      } 
+      linesDrawNames.push(countryName);
+      linesDraw.push(svg_line_chart
+                .append("path")
+                .datum(dataGroup.get(true))
+                .attr("fill", "none")
+                .attr("stroke", "indianred")
+                .attr("stroke-width", 1)
+                .attr("d",d3.line()
+                          .x(function(d) { return x(d[0]);})
+                          .y(function(d) { return y0(d[1]);}))
+                );
+    }else if (context==1) {
+      var dataGroup = d3.rollup(dataset, v => v.length, d => d["Country Name"]==countryName, d => d.Date);
+      if (d3.max(dataGroup.get(true).values()) > y0.domain()[1]) {//change axis size
+        axisChangeLineChart(d3.max(dataGroup.get(true).values()));
+      } 
+      linesDrawNames.push(countryName);
+      linesDraw.push(svg_line_chart
+                .append("path")
+                .datum(dataGroup.get(true))
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 1)
+                .attr("d",d3.line()
+                          .x(function(d) { return x(d[0]);})
+                          .y(function(d) { return y0(d[1]);}))
+                );
+    }
+  }
 }
+
+function axisChangeLineChart(value){
+  if (context==0) {  
+    y0.domain([0, value]);
+    axisY0
+        .attr("class", "axisRed")
+        .call(d3.axisLeft(y0).ticks(5));
+    if (linesDraw.length > 0 ) {
+      for (let i = 0; i < linesDraw.length; i++) {
+        var dataGroup2 = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"]==linesDrawNames[i], d => d.Date);
+        linesDraw[i]
+            .datum(dataGroup2.get(true))
+            .transition()
+            .duration(1000)
+            .attr("stroke", "indianRed")
+            .attr("d",d3.line()
+                .x(function(d) {return x(d[0]);})
+                .y(function(d) {return y0(d[1]);})
+            );
+      }
+    }
+  }
+  if (context==1) {  
+    y0.domain([0, value]);
+    axisY0
+        .attr("class", "axisSteelBlue")
+        .call(d3.axisLeft(y0).ticks(5));
+    if (linesDraw.length > 0 ) {
+      for (let i = 0; i < linesDraw.length; i++) {
+        var dataGroup2 = d3.rollup(dataset, v => v.length, d => d["Country Name"]==linesDrawNames[i], d => d.Date);
+        linesDraw[i]
+            .datum(dataGroup2.get(true))
+            .transition()
+            .duration(1000)
+            .attr("stroke", "steelblue")
+            .attr("d",d3.line()
+                .x(function(d) {return x(d[0]);})
+                .y(function(d) {return y0(d[1]);})
+            );
+      }
+    }
+  }
+
 }
