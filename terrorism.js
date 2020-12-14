@@ -2,7 +2,6 @@ var dataset, full_dataset, datasetSecurity;
 
 var padding = 60;
 
-var svg_choropleth_map, svg_circle_packing, svg_line_chart, svg_parallel_coordinates;
 var svg_choropleth_map, svg_circle_packing, svg_line_chart, svg_pc;
 var gradient_red, gradient_blue;
 
@@ -164,7 +163,7 @@ function gen_choropleth_map() {
 
             d3.select("path#pc-"+d.target.id)
                 .style("stroke", "#69b3a2")
-                .style("opacity", "1")
+                .style("opacity", 1)
                 .attr("stroke-width",3).raise()
         }
 
@@ -188,6 +187,7 @@ function gen_choropleth_map() {
             svg_pc.selectAll("path")
                 .style("stroke","#69b3a2")
                 .style("opacity",0.5)
+                .attr("stroke-width",1)
         }
 
         let click = function(event, d) {
@@ -371,6 +371,7 @@ function gen_parallel_coordinates() {
         height = 300 - margin.top - margin.bottom;
 
 
+    d3.csv("dataGrouped_iso.csv").then(function(data_filtered) {
 
 
         svg_pc = d3
@@ -382,8 +383,12 @@ function gen_parallel_coordinates() {
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
         //DEBUG PURPOSES
+        //var selected_country = "Portugal";
 
 
+        //data_filtered = data.filter(function(d) {
+        //    return ((d.Attacks != -1 && d.Fatalities != -1) || (d["Military"] != -1 && d.Police != -1))
+        //});
         // For each dimension, I build a linear scale. I store all in a y object
         yPC = {}
         for (i in dimensions) {
@@ -411,12 +416,8 @@ function gen_parallel_coordinates() {
             //return d3.line()([5,7]);
         }
 
-<<<<<<< Updated upstream
         // Draw the linesOriginal
         linesPC = svg_pc
-=======
-        linesPC=svg_pc
->>>>>>> Stashed changes
             .selectAll("myPath")
             .data(data_filtered)
             .enter().append("path")
