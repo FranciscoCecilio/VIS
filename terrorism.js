@@ -3,6 +3,7 @@ var dataset, full_dataset, datasetSecurity;
 var padding = 60;
 
 var svg_choropleth_map, svg_circle_packing, svg_line_chart, svg_parallel_coordinates;
+var svg_choropleth_map, svg_circle_packing, svg_line_chart, svg_pc;
 var gradient_red, gradient_blue;
 
 var radius = 5;
@@ -13,6 +14,8 @@ var selectedBar, selectedCircle, selectedYear;
 
 var context = 0; // 0 - deaths; 1 - events.
 
+
+var countries_ids;
 
 var selectedCountries = [];
 
@@ -154,6 +157,15 @@ function gen_choropleth_map() {
                         .style("stroke", "black")
                 }
             }
+            //highlight PC
+            svg_pc.selectAll("path")
+                .style("stroke","#aba9a4")
+                .style("opacity",0.2)
+
+            d3.select("path#pc-"+d.target.id)
+                .style("stroke", "#69b3a2")
+                .style("opacity", "1")
+                .attr("stroke-width",3).raise()
         }
 
         let mouseLeave = function(d) {
@@ -170,6 +182,12 @@ function gen_choropleth_map() {
                         .style("stroke", "transparent")
                 }
             }
+
+
+            //unhighlight PC
+            svg_pc.selectAll("path")
+                .style("stroke","#69b3a2")
+                .style("opacity",0.5)
         }
 
         let click = function(event, d) {
@@ -192,11 +210,18 @@ function gen_choropleth_map() {
 
         var projection = d3.geoEqualEarth();
         var path = d3.geoPath().projection(projection);
+
+        countries_ids = new Map()
+
         d3.select("svg")
             .selectAll("path")
             .data(topojson.feature(topology, topology.objects.countries).features)
             .enter()
             .append("path")
+            .attr("id", function(d){
+                countries_ids.set(""+d.properties.name,d.id)
+                return d.id;
+            })
             .attr("d", path)
             .attr("fill", function(d) {
                 d.total = dataGroup.get(d.properties.name) || 0;
@@ -237,6 +262,7 @@ function gen_line_chart() {
 
         // set the ranges
         x = d3.scalePoint().range([0, width]);
+        console.log(x)
         y0 = d3.scaleLinear().range([height, 0]);
         y1 = d3.scaleLinear().range([height, 0]);
         // Scale the range of the data
@@ -284,6 +310,57 @@ function gen_line_chart() {
             .attr("class", "axisGreen")
             .attr("transform", "translate( " + width + ", 0 )")
             .call(d3.axisRight(y1));
+
+
+        //INTERACTIVE 
+        /*var focus = svg_line_chart
+            .append('g')
+            .append('circle')
+            .style("fill", "none")
+            .attr("stroke", "black")
+            .attr('r', 8.5)
+            .style("opacity", 0)
+
+        var focusText = svg_line_chart
+            .append('g')
+            .append('text')
+            .style("opacity", 0)
+            .attr("text-anchor", "left")
+            .attr("alignment-baseline", "middle")
+
+
+        svg_line_chart
+            .append('rect')
+            .style("fill", "none")
+            .style("pointer-events", "all")
+            .attr('width', width)
+            .attr('height', height)
+            .on('mouseover', mouseover)
+            .on('mousemove', mousemove)
+            .on('mouseout', mouseout);
+        function mouseover() {
+            focus.style("opacity", 1)
+            focusText.style("opacity",1)
+        }
+        function mousemove() {
+            // recover coordinate we need
+            var x0 = x.invert(d3.pointer(this)[0]);
+            var i = bisect(datasetSecurity, x0, 1);
+            selectedData = datasetSecurity[i]
+            focus
+              .attr("cx", x(selectedData.x))
+              .attr("cy", y(selectedData.y))
+            focusText
+              .html("x:" + selectedData.x + "  -  " + "y:" + selectedData.y)
+              .attr("x", x(selectedData.x)+15)
+              .attr("y", y(selectedData.y))
+            }
+          function mouseout() {
+            focus.style("opacity", 0)
+            focusText.style("opacity", 0)
+          }
+
+        */
     });
 
 }
@@ -293,8 +370,6 @@ function gen_parallel_coordinates() {
         width = 750 - margin.left - margin.right,
         height = 300 - margin.top - margin.bottom;
 
-
-    d3.csv("dataGrouped.csv").then(function(data) {
 
 
 
@@ -307,12 +382,8 @@ function gen_parallel_coordinates() {
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
         //DEBUG PURPOSES
-        var selected_country = "Portugal";
 
 
-        data_filtered = data.filter(function(d) {
-            return ((d.Attacks != -1 && d.Fatalities != -1) && (d["Military"] != -1 && d.Police != -1))
-        });
         // For each dimension, I build a linear scale. I store all in a y object
         yPC = {}
         for (i in dimensions) {
@@ -334,16 +405,24 @@ function gen_parallel_coordinates() {
         // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
         function path(d) {
             return d3.line()(dimensions.map(function(p) {
+                
                 return [xPC(p), yPC[p](d[p])];
             }));
             //return d3.line()([5,7]);
         }
 
+<<<<<<< Updated upstream
         // Draw the linesOriginal
         linesPC = svg_pc
+=======
+        linesPC=svg_pc
+>>>>>>> Stashed changes
             .selectAll("myPath")
             .data(data_filtered)
             .enter().append("path")
+            .attr("id",function(d) {
+                return "pc-"+d.ID;
+            })
             .attr("d", path)
             .style("fill", "none")
             .style("stroke", "#69b3a2")
@@ -364,6 +443,29 @@ function gen_parallel_coordinates() {
             .attr("y", -9)
             .text(function(d) { return d; })
             .style("fill", "black")
+
+        //HIGHLIGHT
+        function highlight(d) {
+           console.log("wndkoqwnod") 
+        }
+        var highlight = function(d){
+
+            d3.selectAll("line " + d)
+              .transition().duration(200)
+              .style("stroke", "black")
+              .style("opacity", "1")
+          }
+        
+        // Unhighlight
+        var doNotHighlight = function(d){
+            d3.selectAll(".line")
+                .transition().duration(200).delay(1000)
+                .style("stroke", "white" )
+                .style("opacity", "1")
+        }
+
+        // Draw the linesOriginal
+        
 
     });
 }
