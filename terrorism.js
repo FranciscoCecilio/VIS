@@ -39,6 +39,10 @@ var dimensions = [
     "Police"
 ];
 //
+//colors
+var color = ["DarkOrange","DarkGreen","DarkViolet","DarkBlue","DarkRed"];
+var colorN = 0;
+//
 
 d3.json("terrorism_attacks.json").then(function(data) {
     full_dataset = data; // this variable is always the full dataset
@@ -198,11 +202,14 @@ function gen_choropleth_map() {
                 d3.select(event.target)
                     .style("opacity", 0.5)
                     .style("stroke", "black")
+                    .attr("stroke-width",1)
             } else {
                 selectedCountries.push(d.properties.name);
+                colorN+=1;
                 d3.select(event.target)
                     .style("opacity", 0.98)
-                    .style("stroke", "black")
+                    .style("stroke", color[colorN%5])
+                    .attr("stroke-width",2)
             }
             renderLineChart(d.properties.name);
         }
@@ -381,7 +388,9 @@ function gen_parallel_coordinates() {
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
+                "translate(" + margin.left + "," + margin.top + ")")
+            
+
         //DEBUG PURPOSES
         //var selected_country = "Portugal";
 
@@ -731,7 +740,7 @@ function renderLineChart(countryName) {
                 .append("path")
                 .datum(dataGroup.get(true))
                 .attr("fill", "none")
-                .attr("stroke", "indianred")
+                .attr("stroke", color[colorN%5])
                 .attr("stroke-width", 1)
                 .attr("d", d3.line()
                     .x(function(d) { return x(d[0]); })
@@ -748,7 +757,7 @@ function renderLineChart(countryName) {
                 .append("path")
                 .datum(dataGroup.get(true))
                 .attr("fill", "none")
-                .attr("stroke", "steelblue")
+                .attr("stroke", color[colorN%5])
                 .attr("stroke-width", 1)
                 .attr("d", d3.line()
                     .x(function(d) { return x(d[0]); })
@@ -772,7 +781,7 @@ function axisChangeLineChart(value) {
                     .datum(dataGroup2.get(true))
                     .transition()
                     .duration(1000)
-                    .attr("stroke", "indianRed")
+                    //.attr("stroke", "indianRed")
                     .attr("d", d3.line()
                         .x(function(d) { return x(d[0]); })
                         .y(function(d) { return y0(d[1]); 
@@ -796,7 +805,7 @@ function axisChangeLineChart(value) {
                     .datum(dataGroup2.get(true))
                     .transition()
                     .duration(1000)
-                    .attr("stroke", "steelblue")
+                    //.attr("stroke", "steelblue")
                     .attr("d", d3.line()
                         .x(function(d) { return x(d[0]); })
                         .y(function(d) { return y0(d[1]); })
