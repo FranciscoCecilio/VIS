@@ -40,7 +40,7 @@ var dimensions = [
 ];
 //
 //colors
-var color = ["DarkOrange","DarkGreen","DarkViolet","DarkBlue","DarkRed"];
+var color = ["DarkOrange", "DarkGreen", "DarkViolet", "DarkBlue", "DarkRed"];
 var colorN = 0;
 //
 
@@ -163,13 +163,13 @@ function gen_choropleth_map() {
             }
             //highlight PC
             svg_pc.selectAll("path")
-                .style("stroke","#aba9a4")
-                .style("opacity",0.2)
+                .style("stroke", "#aba9a4")
+                .style("opacity", 0.2)
 
-            d3.select("path#pc-"+d.target.id)
+            d3.select("path#pc-" + d.target.id)
                 .style("stroke", "#69b3a2")
                 .style("opacity", 1)
-                .attr("stroke-width",3).raise()
+                .attr("stroke-width", 3).raise()
         }
 
         let mouseLeave = function(d) {
@@ -190,9 +190,9 @@ function gen_choropleth_map() {
 
             //unhighlight PC
             svg_pc.selectAll("path")
-                .style("stroke","#69b3a2")
-                .style("opacity",0.5)
-                .attr("stroke-width",1)
+                .style("stroke", "#69b3a2")
+                .style("opacity", 0.5)
+                .attr("stroke-width", 1)
         }
 
         let click = function(event, d) {
@@ -202,14 +202,14 @@ function gen_choropleth_map() {
                 d3.select(event.target)
                     .style("opacity", 0.5)
                     .style("stroke", "black")
-                    .attr("stroke-width",1)
+                    .attr("stroke-width", 1)
             } else {
                 selectedCountries.push(d.properties.name);
-                colorN+=1;
+                colorN += 1;
                 d3.select(event.target)
                     .style("opacity", 0.98)
-                    .style("stroke", color[colorN%5])
-                    .attr("stroke-width",2)
+                    .style("stroke", color[colorN % 5])
+                    .attr("stroke-width", 2)
             }
             renderLineChart(d.properties.name);
         }
@@ -225,8 +225,8 @@ function gen_choropleth_map() {
             .data(topojson.feature(topology, topology.objects.countries).features)
             .enter()
             .append("path")
-            .attr("id", function(d){
-                countries_ids.set(""+d.properties.name,d.id)
+            .attr("id", function(d) {
+                countries_ids.set("" + d.properties.name, d.id)
                 return d.id;
             })
             .attr("d", path)
@@ -389,7 +389,7 @@ function gen_parallel_coordinates() {
             .append("g")
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")")
-            
+
 
         //DEBUG PURPOSES
         //var selected_country = "Portugal";
@@ -419,7 +419,7 @@ function gen_parallel_coordinates() {
         // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
         function path(d) {
             return d3.line()(dimensions.map(function(p) {
-                
+
                 return [xPC(p), yPC[p](d[p])];
             }));
             //return d3.line()([5,7]);
@@ -430,8 +430,8 @@ function gen_parallel_coordinates() {
             .selectAll("myPath")
             .data(data_filtered)
             .enter().append("path")
-            .attr("id",function(d) {
-                return "pc-"+d.ID;
+            .attr("id", function(d) {
+                return "pc-" + d.ID;
             })
             .attr("d", path)
             .style("fill", "none")
@@ -456,26 +456,26 @@ function gen_parallel_coordinates() {
 
         //HIGHLIGHT
         function highlight(d) {
-           console.log("wndkoqwnod") 
+            console.log("wndkoqwnod")
         }
-        var highlight = function(d){
+        var highlight = function(d) {
 
             d3.selectAll("line " + d)
-              .transition().duration(200)
-              .style("stroke", "black")
-              .style("opacity", "1")
-          }
-        
+                .transition().duration(200)
+                .style("stroke", "black")
+                .style("opacity", "1")
+        }
+
         // Unhighlight
-        var doNotHighlight = function(d){
+        var doNotHighlight = function(d) {
             d3.selectAll(".line")
                 .transition().duration(200).delay(1000)
-                .style("stroke", "white" )
+                .style("stroke", "white")
                 .style("opacity", "1")
         }
 
         // Draw the linesOriginal
-        
+
 
     });
 }
@@ -495,13 +495,12 @@ function gen_circle_packing() {
         .size([width, heigth - 50])
         .padding(10);
     if (context == 0)
-        d3.json("test.json").then(function(data) {
-            console.log("ola");
+        d3.json("test1.json").then(function(data) {
             var nodes = d3.hierarchy(data)
                 .sum(function(d) {
-                    return d.value;
+                    return d.Attacks;
                 });
-            console.log(pack(nodes).descendants());
+            //console.log(pack(nodes).descendants());
             var node = svg_circle_packing.selectAll(".node")
                 .data(pack(nodes).descendants())
                 .enter()
@@ -520,65 +519,89 @@ function gen_circle_packing() {
                 .attr("opacity", 0.25)
                 .attr("stroke", "#ADADAD")
                 .attr("stroke-width", "2");
-
+            //CountryName
             node.append("text")
                 .text(function(d) {
-                    //return d.data.name;
-                    return d.children ? "" : d.data.name;
+                    console.log(d.data["Country Name"]);
+                    return d.data["Country Name"];
                 })
-
+                .style("fill", "black")
+                .attr("font-family", "Arial")
+                .attr("font-weight", "bold")
+                .attr('transform', 'translate(-30, ' + (50 - heigth / 2) + ')');
+            //Perpetrators
+            /* node.append("text")
+                 .text(function(d) {
+                     return d.data.Perpetrator;
+                 })
+                 .style("fill", "green")
+                 .attr("font-family", "Arial")
+                 .style("text-anchor", "middle")
+                 .attr('transform', function(d) {
+                     console.log(node);
+                     return "translate(0,-" + d.r + ")"
+                 });
+             //Weapons
+             node.append("text")
+                  .text(function(d) {
+                      return d.data.Weapon;
+                  })
+                  .attr("font-family", "Arial")
+                  .style("text-anchor", "middle")
+                  .style("font-size", 12)
+                  //.attr("dx", function(d) { return -20 })*/
         });
     //.value(function(d) { return d.size; });
 
     /*   var margin = 10,
-    outerDiameter = 960,
-    innerDiameter = outerDiameter - margin - margin;
+        outerDiameter = 960,
+        innerDiameter = outerDiameter - margin - margin;
 
-var x = d3.scaleLinear()
-    .range([0, innerDiameter]);
+    var x = d3.scaleLinear()
+        .range([0, innerDiameter]);
 
-var y = d3.scaleLinear()
-    .range([0, innerDiameter]);
+    var y = d3.scaleLinear()
+        .range([0, innerDiameter]);
 
-var color = d3.scaleLinear()
-    .domain([-1, 5])
-    .range(["#e1f4fd", "#00aeef"])
-    .interpolate(d3.interpolateHcl);
+    var color = d3.scaleLinear()
+        .domain([-1, 5])
+        .range(["#e1f4fd", "#00aeef"])
+        .interpolate(d3.interpolateHcl);
 
-var pack = d3.pack()
-    .padding(2)
-    .size([innerDiameter, innerDiameter])
-    .value(function(d) { return d.size; })
+    var pack = d3.pack()
+        .padding(2)
+        .size([innerDiameter, innerDiameter])
+        .value(function(d) { return d.size; })
 
-var svg_circle_packing = d3.select("#circle_packing").append("svg")
-    .attr("width", outerDiameter)
-    .attr("height", outerDiameter)
-  .append("g")
-    .attr("transform", "translate(" + margin + "," + margin + ")");
+    var svg_circle_packing = d3.select("#circle_packing").append("svg")
+        .attr("width", outerDiameter)
+        .attr("height", outerDiameter)
+      .append("g")
+        .attr("transform", "translate(" + margin + "," + margin + ")");
 
-d3.json("dataHierarchy.json", function(error, root) {
-  var focus = root,
-      nodes = pack.nodes(root);
+    d3.json("dataHierarchy.json", function(error, root) {
+      var focus = root,
+          nodes = pack.nodes(root);
 
-  svg_circle_packing.append("g").selectAll("circle")
-      .data(nodes)
-    .enter().append("circle")
-      .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-      .attr("r", function(d) { return d.r; })
-      .style("fill", function(d) { return d.children ? color(d.depth) : null; })
-      .on("click", function(d) { return zoom(focus == d ? root : d); });
+      svg_circle_packing.append("g").selectAll("circle")
+          .data(nodes)
+        .enter().append("circle")
+          .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
+          .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+          .attr("r", function(d) { return d.r; })
+          .style("fill", function(d) { return d.children ? color(d.depth) : null; })
+          .on("click", function(d) { return zoom(focus == d ? root : d); });
 
-  svg_circle_packing.append("g").selectAll("text")
-      .data(nodes)
-    .enter().append("text")
-      .attr("class", "label")
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-      .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
-      .style("display", function(d) { return d.parent === root ? null : "none"; })
-      .text(function(d) { return d.name; });
+      svg_circle_packing.append("g").selectAll("text")
+          .data(nodes)
+        .enter().append("text")
+          .attr("class", "label")
+          .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+          .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
+          .style("display", function(d) { return d.parent === root ? null : "none"; })
+          .text(function(d) { return d.name; });
 
-  });*/
+      });*/
 
 }
 
@@ -607,7 +630,7 @@ function button_deaths() {
     //Line Chart
     //original lines
     var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d.Date);
-   
+
     y0.domain([0, d3.max(dataGroup.values())]);
     axisY0
         .attr("class", "axisRed")
@@ -625,7 +648,7 @@ function button_deaths() {
     if (linesDraw.length > 0) {
         for (let i = 0; i < linesDraw.length; i++) {
             var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"] == linesDrawNames[i], d => d.Date);
-            linesSizes[i]=d3.max(dataGroup.get(true).values());
+            linesSizes[i] = d3.max(dataGroup.get(true).values());
             linesDraw[i]
                 .datum(dataGroup.get(true))
                 .transition()
@@ -691,7 +714,7 @@ function button_attacks() {
     if (linesDraw.length > 0) {
         for (let i = 0; i < linesDraw.length; i++) {
             var dataGroup = d3.rollup(dataset, v => v.length, d => d["Country Name"] == linesDrawNames[i], d => d.Date);
-            linesSizes[i]=d3.max(dataGroup.get(true).values());
+            linesSizes[i] = d3.max(dataGroup.get(true).values());
             linesDraw[i]
                 .datum(dataGroup.get(true))
                 .transition()
@@ -740,7 +763,7 @@ function renderLineChart(countryName) {
                 .append("path")
                 .datum(dataGroup.get(true))
                 .attr("fill", "none")
-                .attr("stroke", color[colorN%5])
+                .attr("stroke", color[colorN % 5])
                 .attr("stroke-width", 1)
                 .attr("d", d3.line()
                     .x(function(d) { return x(d[0]); })
@@ -757,7 +780,7 @@ function renderLineChart(countryName) {
                 .append("path")
                 .datum(dataGroup.get(true))
                 .attr("fill", "none")
-                .attr("stroke", color[colorN%5])
+                .attr("stroke", color[colorN % 5])
                 .attr("stroke-width", 1)
                 .attr("d", d3.line()
                     .x(function(d) { return x(d[0]); })
@@ -776,7 +799,7 @@ function axisChangeLineChart(value) {
         if (linesDraw.length > 0) {
             for (let i = 0; i < linesDraw.length; i++) {
                 var dataGroup2 = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"] == linesDrawNames[i], d => d.Date);
-                linesSizes[i]=d3.max(dataGroup2.get(true).values());
+                linesSizes[i] = d3.max(dataGroup2.get(true).values());
                 linesDraw[i]
                     .datum(dataGroup2.get(true))
                     .transition()
@@ -784,7 +807,8 @@ function axisChangeLineChart(value) {
                     //.attr("stroke", "indianRed")
                     .attr("d", d3.line()
                         .x(function(d) { return x(d[0]); })
-                        .y(function(d) { return y0(d[1]); 
+                        .y(function(d) {
+                            return y0(d[1]);
                         })
                     );
             }
@@ -800,7 +824,7 @@ function axisChangeLineChart(value) {
         if (linesDraw.length > 0) {
             for (let i = 0; i < linesDraw.length; i++) {
                 var dataGroup2 = d3.rollup(dataset, v => v.length, d => d["Country Name"] == linesDrawNames[i], d => d.Date);
-                linesSizes[i]=d3.max(dataGroup2.get(true).values());
+                linesSizes[i] = d3.max(dataGroup2.get(true).values());
                 linesDraw[i]
                     .datum(dataGroup2.get(true))
                     .transition()
