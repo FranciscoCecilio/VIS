@@ -257,7 +257,11 @@ function gen_choropleth_map() {
 
         countries_ids = new Map()
 
+        var g = svg_choropleth_map.append('g');
+
+
         d3.select("svg")
+            .selectAll('g')
             .selectAll("path")
             .data(topojson.feature(topology, topology.objects.countries).features)
             .enter()
@@ -279,7 +283,23 @@ function gen_choropleth_map() {
             .append("title").text(function(d) {
                 return d.properties.name;
             });
+
+            var zoom = d3.zoom()
+                .scaleExtent([1, 8])
+                .on('zoom', function(event) {
+                    g.selectAll('path')
+                    .attr('transform', event.transform);
+                    g.selectAll("circle")
+                    .attr('transform', event.transform);
+            });
+
+            svg_choropleth_map.call(zoom);
+
     });
+
+
+
+
 
 }
 
@@ -895,4 +915,6 @@ function axisChangeLineChart(value) {
         }
     }
 }
+
+
 
