@@ -12,6 +12,7 @@ h1 {
 .axis text {
   font-family: arial, calibri, sans serif;
   font-size: 10pt;
+  cursor: move;
 }
 
 .btn {
@@ -159,4 +160,24 @@ div.idiom_pc {
 	height: 8px;
 	border-radius: 50%;
 	background: white;
+}
+
+
+
+
+.background path {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+.foreground path {
+  fill: none;
+  stroke: #69b3a2;
+}
+
+.brush .extent {
+  fill-opacity: .3;
+  stroke: #fff;
+  shape-rendering: crispEdges;
 }
