@@ -67,6 +67,8 @@ function gen_choropleth_map() {
 
         height = 500 - margin.top - margin.bottom;
 
+    //reset_button = d3.select("#reset_button")
+    //reset_button.attr("show",false)
     svg_choropleth_map = d3
         .select("#choropleth_map")
         .append("svg") // we are appending an svg to the div 'line_chart'
@@ -127,7 +129,7 @@ function gen_choropleth_map() {
         .attr("transform", "translate(38,270)")
         .attr("width", 20)
         .attr("height", 150)
-        .style("fill", "url(#gradient_red)");
+        .style("fill", "url(#gradient_red)").raise;
 
     var legend = svg_choropleth_map.selectAll("#gradient_red")
         .data(breaks)
@@ -918,3 +920,13 @@ function axisChangeLineChart(value) {
 
 
 
+function reset_countries(color){
+    selectedCountries = [];
+    /*d3.selectAll("rect")
+      .transition()
+      .duration(2000)
+      .style("fill", color)*/
+    console.log("RESET")
+
+    renderLineChart();
+    }
