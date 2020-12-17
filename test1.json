@@ -1,0 +1,200 @@
+{
+    "Country Name": "Algeria",
+    "children": [{
+            "Perpetrator": "Al-Qaeda in the Islamic Maghreb",
+            "children": [{
+                    "Weapon": "Explosives",
+                    "Fatalities": 242,
+                    "Attacks": 30
+                },
+                {
+                    "Weapon": "Firearms",
+                    "Fatalities": 2,
+                    "Attacks": 1
+                },
+                {
+                    "Weapon": "Knives & sharp o",
+                    "Fatalities": 2,
+                    "Attacks": 2
+                },
+                {
+                    "Weapon": "Remote-detonated",
+                    "Fatalities": 25,
+                    "Attacks": 4
+                },
+                {
+                    "Weapon": "Unknown",
+                    "Fatalities": 1,
+                    "Attacks": 1
+                }
+            ]
+        },
+        {
+            "Perpetrator": "Al-Qaeda Organization in the Land of the Two River",
+            "children": [{
+                "Weapon": "Explosives",
+                "Fatalities": 0,
+                "Attacks": 1
+            }]
+        },
+        {
+            "Perpetrator": "Armed Islamic Group (GIA)",
+            "children": [{
+                    "Weapon": "Explosives",
+                    "Fatalities": 13,
+                    "Attacks": 8
+                },
+                {
+                    "Weapon": "Fire or Firebomb",
+                    "Fatalities": 0,
+                    "Attacks": 1
+                },
+                {
+                    "Weapon": "Firearms",
+                    "Fatalities": 435,
+                    "Attacks": 19
+                },
+                {
+                    "Weapon": "Knives & sharp o",
+                    "Fatalities": 20,
+                    "Attacks": 7
+                },
+                {
+                    "Weapon": "Remote-detonated",
+                    "Fatalities": 0,
+                    "Attacks": 1
+                },
+                {
+                    "Weapon": "Unknown",
+                    "Fatalities": 23,
+                    "Attacks": 15
+                }
+            ]
+        },
+        {
+            "Perpetrator": "Free Salafi Group (GSL)",
+            "children": [{
+                "Weapon": "Firearms",
+                "Fatalities": 1,
+                "Attacks": 1
+            }]
+        },
+        {
+            "Perpetrator": "Islamic Salvation Front (FIS)",
+            "children": [{
+                    "Weapon": "Explosives",
+                    "Fatalities": 0,
+                    "Attacks": 2
+                },
+                {
+                    "Weapon": "Fire or Firebomb",
+                    "Fatalities": 0,
+                    "Attacks": 1
+                }
+            ]
+        },
+        {
+            "Perpetrator": "Other",
+            "children": [{
+                "Weapon": "Fire or Firebomb",
+                "Fatalities": 0,
+                "Attacks": 1
+            }]
+        },
+        {
+            "Perpetrator": "Polisario Front",
+            "children": [{
+                "Weapon": "Explosives",
+                "Fatalities": 0,
+                "Attacks": 1
+            }]
+        },
+        {
+            "Perpetrator": "Salafist Group for Call and Combat (GSPC)",
+            "children": [{
+                    "Weapon": "Explosives",
+                    "Fatalities": 5,
+                    "Attacks": 9
+                },
+                {
+                    "Weapon": "Firearms",
+                    "Fatalities": 17,
+                    "Attacks": 13
+                },
+                {
+                    "Weapon": "Knives & sharp o",
+                    "Fatalities": 3,
+                    "Attacks": 3
+                },
+                {
+                    "Weapon": "Remote-detonated",
+                    "Fatalities": 0,
+                    "Attacks": 2
+                },
+                {
+                    "Weapon": "Unknown",
+                    "Fatalities": 1,
+                    "Attacks": 1
+                }
+            ]
+        },
+        {
+            "Perpetrator": "Taliban",
+            "children": [{
+                "Weapon": "Explosives",
+                "Fatalities": 2,
+                "Attacks": 1
+            }]
+        },
+        {
+            "Perpetrator": "Unified Unit of Jihad",
+            "children": [{
+                "Weapon": "Unknown",
+                "Fatalities": 2,
+                "Attacks": 1
+            }]
+        },
+        {
+            "Perpetrator": "Union of Peaceful Citizens of Algeria",
+            "children": [{
+                "Weapon": "Unknown",
+                "Fatalities": 0,
+                "Attacks": 1
+            }]
+        },
+        {
+            "Perpetrator": "Unknown",
+            "children": [{
+                    "Weapon": "Explosives",
+                    "Fatalities": 393,
+                    "Attacks": 131
+                },
+                {
+                    "Weapon": "Fire or Firebomb",
+                    "Fatalities": 1,
+                    "Attacks": 3
+                },
+                {
+                    "Weapon": "Firearms",
+                    "Fatalities": 64,
+                    "Attacks": 26
+                },
+                {
+                    "Weapon": "Knives & sharp o",
+                    "Fatalities": 15,
+                    "Attacks": 7
+                },
+                {
+                    "Weapon": "Remote-detonated",
+                    "Fatalities": 8,
+                    "Attacks": 15
+                },
+                {
+                    "Weapon": "Unknown",
+                    "Fatalities": 27,
+                    "Attacks": 10
+                }
+            ]
+        }
+    ]
+}
