@@ -70,6 +70,8 @@ function gen_choropleth_map() {
 
         height = 500 - margin.top - margin.bottom;
 
+    //reset_button = d3.select("#reset_button")
+    //reset_button.attr("show",false)
     svg_choropleth_map = d3
         .select("#choropleth_map")
         .append("svg") // we are appending an svg to the div 'line_chart'
@@ -130,7 +132,7 @@ function gen_choropleth_map() {
         .attr("transform", "translate(38,270)")
         .attr("width", 20)
         .attr("height", 150)
-        .style("fill", "url(#gradient_red)");
+        .style("fill", "url(#gradient_red)").raise;
 
     var legend = svg_choropleth_map.selectAll("#gradient_red")
         .data(breaks)
@@ -259,7 +261,11 @@ function gen_choropleth_map() {
 
         countries_ids = new Map()
 
+        var g = svg_choropleth_map.append('g');
+
+
         d3.select("svg")
+            .selectAll('g')
             .selectAll("path")
             .data(topojson.feature(topology, topology.objects.countries).features)
             .enter()
@@ -281,7 +287,23 @@ function gen_choropleth_map() {
             .append("title").text(function(d) {
                 return d.properties.name;
             });
+
+            var zoom = d3.zoom()
+                .scaleExtent([1, 8])
+                .on('zoom', function(event) {
+                    g.selectAll('path')
+                    .attr('transform', event.transform);
+                    g.selectAll("circle")
+                    .attr('transform', event.transform);
+            });
+
+            svg_choropleth_map.call(zoom);
+
     });
+
+
+
+
 
 }
 
@@ -922,3 +944,15 @@ function axisChangeLineChart(value) {
     }
 }
 
+
+
+function reset_countries(color){
+    selectedCountries = [];
+    /*d3.selectAll("rect")
+      .transition()
+      .duration(2000)
+      .style("fill", color)*/
+    console.log("RESET")
+
+    renderLineChart();
+    }

@@ -38,32 +38,40 @@ h1 {
   text-anchor: middle;
 }
 
+
+
+
 div.idiom_map {
   position:relative;
   left:0px;
   top:2px;
-  border-style:dotted;
+  border-style: solid;
   border-color:coral;
+  border-width: 5px;
+  background-color: #69b3a2;
 }
 div.idiom_cp {
   position:relative;
   top:2px;
-  border-style:dotted;
+  border-style:solid;
   border-color:coral;
+  border-width: 5px;
 }
 div.idiom_lc {
   position:relative;
   left:0px;
   bottom:2px;
-  border-style:dotted;
+  border-style:solid;
   border-color:coral;
+  border-width: 5px;
 }
 div.idiom_pc {
   position:relative;
   left:0px;
   bottom:2px;
-  border-style:dotted;
+  border-style:solid;
   border-color:coral;
+  border-width: 5px;
 }
 
 
@@ -85,15 +93,32 @@ div.idiom_pc {
   fill: seagreen;
 }
 
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
 
+.reset_button {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  width: 115px;
+}
 
 
 /*radio buttons*/
+
 .container_radios {
   display: block;
   position: absolute;
   padding-left: 35px;
   bottom: 200px;
+
 }
 .container {
   display: block;
@@ -111,6 +136,7 @@ div.idiom_pc {
 
 /* Hide the browser's default radio button */
 .container input {
+  
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -118,6 +144,7 @@ div.idiom_pc {
 
 /* Create a custom radio button */
 .checkmark {
+  
   position: absolute;
   top: 0;
   left: 0;
@@ -180,4 +207,9 @@ div.idiom_pc {
   fill-opacity: .3;
   stroke: #fff;
   shape-rendering: crispEdges;
+}
+
+
+body{
+  background-color: #d4faec;
 }

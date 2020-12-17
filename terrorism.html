@@ -10,7 +10,9 @@
     <!-- Go away favicon. -->
 </head>
 
-<body>
+<body >
+    
+
     <h1>Terrorist attacks detailed!</h1>
     <!--div>
         <button type="button" class="btn" id="deaths">Deaths</button>
@@ -18,7 +20,9 @@
     </div-->
     <div id="dashboard">
         <div class="idiom_map" id="choropleth_map" style="max-width: 1000px; float: left">
+            
             <div class=container_radios>
+               
                 <label class="container">Deaths
                     <input id="deaths_r" type="radio" checked="checked" name="radio">
                     <span class="checkmark"></span>
@@ -27,6 +31,7 @@
                     <input type="radio" name="radio">
                     <span class="checkmark"></span>
                 </label>
+                <button onclick="reset_countries()" type="button" class = "reset_button" id="reset_button">Reset</button> 
             </div>
         </div>
         <div class="idiom_cp" id="circle_packing" style="max-width: 510px; float: left"></div>
