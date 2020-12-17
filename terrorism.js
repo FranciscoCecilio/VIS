@@ -55,7 +55,7 @@ d3.json("terrorism_attacks.json").then(function(data) {
     gen_choropleth_map();
     gen_line_chart();
     gen_circle_packing();
-    rui();
+    gen_parallel_coordinates();
 
 
 });
@@ -306,7 +306,6 @@ function gen_line_chart() {
 
         // set the ranges
         x = d3.scalePoint().range([0, width]);
-        console.log(x)
         y0 = d3.scaleLinear().range([height, 0]);
         y1 = d3.scaleLinear().range([height, 0]);
         // Scale the range of the data
@@ -410,140 +409,186 @@ function gen_line_chart() {
 }
 
 function gen_parallel_coordinates() {
-    var margin = { top: 30, right: 10, bottom: 10, left: 0 },
+
+    var margin = { top: 30, right: 10, bottom: 10, left: 50 },
         width = 750 - margin.left - margin.right,
         height = 300 - margin.top - margin.bottom;
 
-
-    d3.csv("dataGrouped_iso.csv").then(function(data_filtered) {
-
-
-        svg_pc = d3
-            .select("#parallel_coordinates")
-            .append("svg") // we are appending an svg to the div 'line_chart'
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")")
-
-
-        //DEBUG PURPOSES
-        //var selected_country = "Portugal";
-
-
-        //data_filtered = data.filter(function(d) {
-        //    return ((d.Attacks != -1 && d.Fatalities != -1) || (d["Military"] != -1 && d.Police != -1))
-        //});
-        // For each dimension, I build a linear scale. I store all in a y object
-        yPC = {}
-        for (i in dimensions) {
-            name = dimensions[i]
-            scale = [0, d3.max(data_filtered, function(d) { return +d[name]; })];
-
-            yPC[name] = d3.scaleLinear()
-                .domain(scale) // --> Same axis range for each group
-                // --> different axis range for each group --> .domain( [d3.extent(data, function(d) { return +d[name]; })] )
-                .range([height, 0])
-        }
-
-        // Build the X scale -> it find the best position for each Y axis
-        xPC = d3.scalePoint()
+    xPC = d3.scalePoint()
             .range([0, width])
-            .padding(0.5)
-            .domain(dimensions);
+            .padding(0.1)
+            .domain(dimensions),
+    yPC = {};
+    dragging = {};
 
-        // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
-        function path(d) {
-            return d3.line()(dimensions.map(function(p) {
+    linePC = d3.line();
+    axisPC = d3.axisLeft();
 
-                return [xPC(p), yPC[p](d[p])];
-            }));
-            //return d3.line()([5,7]);
-        }
 
-        // Draw the linesOriginal
-        linesPC = svg_pc
-            .selectAll("myPath")
-            .data(data_filtered)
+    svg_pc = d3.select("#parallel_coordinates").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            
+
+    d3.csv("dataGrouped_id.csv").then(function(data) {
+
+
+        for (i in dimensions) {
+                name = dimensions[i]
+                scale = [0, d3.max(data, function(d) { return +d[name]; })];
+
+                yPC[name] = d3.scaleLinear()
+                    .domain(scale) // --> Same axis range for each group
+                    // --> different axis range for each group --> .domain( [d3.extent(data, function(d) { return +d[name]; })] )
+                    .range([height, 0])
+            }
+          // Add grey background lines for context.
+          background = svg_pc.append("g")
+              .attr("class", "background")
+            .selectAll("path")
+              .data(data)
             .enter().append("path")
-            .attr("id", function(d) {
-                return "pc-" + d.ID;
-            })
-            .attr("d", path)
-            .style("fill", "none")
-            .style("stroke", "#69b3a2")
-            .style("opacity", 0.5)
+              .attr("d", path);
 
-        // Draw the axis:
-        svg_pc.selectAll("myAxis")
-            // For each dimension of the dataset I add a 'g' element:
-            .data(dimensions).enter()
-            .append("g")
-            // I translate this element to its right position on the x axis
-            .attr("transform", function(d) { return "translate(" + xPC(d) + ")"; })
-            // And I build the axis with the call function
-            .each(function(d) { d3.select(this).call(d3.axisLeft().scale(yPC[d])); })
-            // Add axis title
-            .append("text")
-            .style("text-anchor", "middle")
-            .attr("y", -9)
-            .text(function(d) { return d; })
-            .style("fill", "black")
-            .call(d3.drag()
-                .subject(function(d) { return {x: xPC(d)}; })
-                .on("start", function(d) {
+          // Add blue foreground lines for focus.
+          foreground = svg_pc.append("g")
+              .attr("class", "foreground")
+            .selectAll("path")
+              .data(data)
+            .enter().append("path")
+            .attr("id",function(d) {
+                        return "pc-"+d.ID;
+                    })
+              .attr("d", path);
+
+          // Add a group element for each dimension.
+          var g = svg_pc.selectAll(".dimension")
+              .data(dimensions)
+            .enter().append("g")
+              .attr("class", "dimension")
+              .attr("transform", function(d) { return "translate(" + xPC(d) + ")"; })
+              .call(d3.drag()
+                .subject(function(d) { return {xPC: xPC(d)}; })
+                .on("start", function(event, d) {
                   dragging[d] = xPC(d);
-                  //background.attr("visibility", "hidden");
+                  background.attr("visibility", "hidden");
+
+                  if (d == "Fatalities") {
+                    document.getElementById("deaths_r").click();
+                  }else if (d == "Attacks") {
+                    document.getElementById("attacks_r").click();
+                  }else if (d == "Military") {
+                    d3.json("security.json").then(function(datasetSecurity) {
+                    var dataGroupy1 = d3.rollup(datasetSecurity, v => d3.mean(v, d => d.Value), d => d["Indicator Name"]=="Military expenditure (% of GDP)" , d => d.Date,);
+                    y1.domain([0, d3.max(dataGroupy1.get(true).values())]);
+                    axisY1
+                        .attr("class", "axisGreen")
+                        .call(d3.axisRight(y1).ticks(5));
+                    linesOriginal[1]
+                        .datum(dataGroupy1.get(true))
+                        .transition()
+                        .duration(1000)
+                        .attr("stroke", "seagreen")
+                        .attr("d", d3.line()
+                            .x(function(d) { return x(d[0]); })
+                            .y(function(d) { return y1(d[1]); })
+                        )
+                    });                  
+                  }else if (d == "Police") {
+                    d3.json("security.json").then(function(datasetSecurity) {
+                    var dataGroupy1 = d3.rollup(datasetSecurity, v => d3.mean(v, d => d.Value), d => d["Indicator Name"] == "Police Personnel by 100,000 population",d => d.Date);               
+                    y1.domain([0, d3.max(dataGroupy1.get(true).values())]);                    
+                    axisY1
+                        .attr("class", "axisGreen")
+                        .call(d3.axisRight(y1).ticks(5));
+                    linesOriginal[1]
+                        .datum(dataGroupy1.get(true))
+                        .transition()
+                        .duration(1000)
+                        .attr("stroke", "seagreen")
+                        .attr("d", d3.line()
+                            .x(function(d) { return x(d[0]); })
+                            .y(function(d) { return y1(d[1]); })
+                        )
+                    });
+                  }
+
+
+
                 })
                 .on("drag", function(event, d) {
                   dragging[d] = Math.min(width, Math.max(0, event.x));
-                  //foreground.attr("d", path);
+                  foreground.attr("d", path);
                   dimensions.sort(function(a, b) { return position(a) - position(b); });
                   xPC.domain(dimensions);
                   g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
                 })
-                .on("end", function(d) {
+                .on("end", function(event, d) {
                   delete dragging[d];
                   transition(d3.select(this)).attr("transform", "translate(" + xPC(d) + ")");
-                  //transition(foreground).attr("d", path);
-                  /*background
+                  transition(foreground).attr("d", path);
+                  background
                       .attr("d", path)
                     .transition()
                       .delay(500)
                       .duration(0)
-                      .attr("visibility", null);*/
-                }))
+                      .attr("visibility", null);
+            }));
 
-        //HIGHLIGHT
-        function highlight(d) {
-            console.log("wndkoqwnod")
-        }
-        var highlight = function(d) {
+          // Add an axis and title.
+          g.append("g")
+              .attr("class", "axis")
+              .each(function(d) { d3.select(this).call(axisPC.scale(yPC[d])); })
+                .append("text")
+                .style("text-anchor", "middle")
+                .attr("y", -9)
+                .text(function(d) { return d; })
+                .style("fill", "black")
+          // Add and store a brush for each axis.
+          g.append("g")
+              .attr("class", "brush")
+              .each(function(d) {
+                d3.select(this).call(yPC[d].brush = d3.brushY()
+                    .on("start", (function(event, d) {brushstart(event, d);}))
+                    .on("brush", (function(event, d) {brush(event, d);})));
+              })
+            .selectAll("rect")
+              .attr("x", -8)
+              .attr("width", 16);
+});
 
-            d3.selectAll("line " + d)
-                .transition().duration(200)
-                .style("stroke", "black")
-                .style("opacity", "1")
-        }
-
-        // Unhighlight
-        var doNotHighlight = function(d) {
-            d3.selectAll(".line")
-                .transition().duration(200).delay(1000)
-                .style("stroke", "white")
-                .style("opacity", "1")
-        }
-
-        // Draw the linesOriginal
-
-
-    });
+function position(d) {
+  var v = dragging[d];
+  return v == null ? xPC(d) : v;
 }
 
 function transition(g) {
   return g.transition().duration(500);
 }
+
+// Returns the path for a given data point.
+function path(d) {
+    return linePC(dimensions.map(function(p) { return [xPC(p), yPC[p](d[p])];}));
+}
+
+function brushstart(event, d) {
+  event.sourceEvent.stopPropagation();
+}
+
+// Handles a brush event, toggling the display of foreground lines.
+function brush(event, d) {
+  var actives = dimensions.filter(function(p) { return !yPC[p].brush.empty(); }),
+      extents = actives.map(function(p) { return yPC[p].brush.extent(); });
+  foreground.style("display", function(d) {
+    return actives.every(function(p, i) {
+      return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+    }) ? null : "none";
+  });
+}
+}
+
 
 function gen_circle_packing() {
     var width = 510,
@@ -616,58 +661,6 @@ function gen_circle_packing() {
                   .style("font-size", 12)
                   //.attr("dx", function(d) { return -20 })*/
         });
-    //.value(function(d) { return d.size; });
-
-    /*   var margin = 10,
-        outerDiameter = 960,
-        innerDiameter = outerDiameter - margin - margin;
-
-    var x = d3.scaleLinear()
-        .range([0, innerDiameter]);
-
-    var y = d3.scaleLinear()
-        .range([0, innerDiameter]);
-
-    var color = d3.scaleLinear()
-        .domain([-1, 5])
-        .range(["#e1f4fd", "#00aeef"])
-        .interpolate(d3.interpolateHcl);
-
-    var pack = d3.pack()
-        .padding(2)
-        .size([innerDiameter, innerDiameter])
-        .value(function(d) { return d.size; })
-
-    var svg_circle_packing = d3.select("#circle_packing").append("svg")
-        .attr("width", outerDiameter)
-        .attr("height", outerDiameter)
-      .append("g")
-        .attr("transform", "translate(" + margin + "," + margin + ")");
-
-    d3.json("dataHierarchy.json", function(error, root) {
-      var focus = root,
-          nodes = pack.nodes(root);
-
-      svg_circle_packing.append("g").selectAll("circle")
-          .data(nodes)
-        .enter().append("circle")
-          .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
-          .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-          .attr("r", function(d) { return d.r; })
-          .style("fill", function(d) { return d.children ? color(d.depth) : null; })
-          .on("click", function(d) { return zoom(focus == d ? root : d); });
-
-      svg_circle_packing.append("g").selectAll("text")
-          .data(nodes)
-        .enter().append("text")
-          .attr("class", "label")
-          .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-          .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
-          .style("display", function(d) { return d.parent === root ? null : "none"; })
-          .text(function(d) { return d.name; });
-
-      });*/
-
 }
 
 
@@ -796,7 +789,6 @@ function button_attacks() {
 
 function renderLineChart(countryID) {
     countryName = countries_ids.get(countryID)
-    console.log(countryName)
     if (selectedCountries.length == 0) { //no selected countries
         if (context == 0) { axisChangeLineChart(12000); }
         if (context == 1) { axisChangeLineChart(6500); }
@@ -882,8 +874,6 @@ function axisChangeLineChart(value) {
         }
     }
     if (context == 1) {
-        console.log("azuis");
-        console.log(value);
         y0.domain([0, value]);
         axisY0
             .attr("class", "axisSteelBlue")
@@ -906,213 +896,3 @@ function axisChangeLineChart(value) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//not used
-
-function renterParallelCoordinates() {
-    // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
-    function path(d) {
-        return d3.line()(dimensions.map(function(p) {
-            return [xPC(p), yPC[p](d[p])];
-        }));
-    }
-    d3.csv("dataGrouped.csv").then(function(data) {
-        var dataFiltered;
-        if (selectedCountries.length > 0) {
-            dataFiltered = data.filter(function(d) {
-                return (selectedCountries.includes(d.Country) &&
-                    (d.Attacks != -1 && d.Fatalities != -1) &&
-                    (d["Military"] != -1 && d.Police != -1))
-            });
-        } else {
-            dataFiltered = data.filter(function(d) {
-                return ((d.Attacks != -1 && d.Fatalities != -1) && (d["Military"] != -1 && d.Police != -1))
-            });
-        }
-        linesPC.remove(); //remove old lines
-        // Draw the linesOriginal
-        linesPC = svg_pc
-            .selectAll("myPath")
-            .data(dataFiltered)
-            .enter().append("path")
-            .attr("d", path)
-            .style("fill", "none")
-            .style("stroke", "#69b3a2")
-            .style("opacity", 0.5)
-    });
-}
-
-
-
-
-
-
-
-
-
-
-
-
-function rui() {
-
-    var margin = { top: 30, right: 10, bottom: 10, left: 50 },
-        width = 750 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
-
-xPC = d3.scalePoint()
-        .range([0, width])
-        .padding(0.1)
-        .domain(dimensions),
-yPC = {};
-dragging = {};
-
-linePC = d3.line();
-axisPC = d3.axisLeft();
-
-
-svg_pc = d3.select("#parallel_coordinates").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
-
-d3.csv("dataGrouped_iso.csv").then(function(data) {
-
-
-    for (i in dimensions) {
-            name = dimensions[i]
-            scale = [0, d3.max(data, function(d) { return +d[name]; })];
-
-            yPC[name] = d3.scaleLinear()
-                .domain(scale) // --> Same axis range for each group
-                // --> different axis range for each group --> .domain( [d3.extent(data, function(d) { return +d[name]; })] )
-                .range([height, 0])
-        }
-  // Add grey background lines for context.
-  background = svg_pc.append("g")
-      .attr("class", "background")
-    .selectAll("path")
-      .data(data)
-    .enter().append("path")
-      .attr("d", path);
-
-  // Add blue foreground lines for focus.
-  foreground = svg_pc.append("g")
-      .attr("class", "foreground")
-    .selectAll("path")
-      .data(data)
-    .enter().append("path")
-    .attr("id",function(d) {
-                return "pc-"+d.ID;
-            })
-      .attr("d", path);
-
-  // Add a group element for each dimension.
-  var g = svg_pc.selectAll(".dimension")
-      .data(dimensions)
-    .enter().append("g")
-      .attr("class", "dimension")
-      .attr("transform", function(d) { return "translate(" + xPC(d) + ")"; })
-      .call(d3.drag()
-        .subject(function(d) { return {xPC: xPC(d)}; })
-        .on("start", function(event, d) {
-          dragging[d] = xPC(d);
-          background.attr("visibility", "hidden");
-        })
-        .on("drag", function(event, d) {
-          dragging[d] = Math.min(width, Math.max(0, event.x));
-          foreground.attr("d", path);
-          dimensions.sort(function(a, b) { return position(a) - position(b); });
-          xPC.domain(dimensions);
-          g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
-        })
-        .on("end", function(event, d) {
-          delete dragging[d];
-          transition(d3.select(this)).attr("transform", "translate(" + xPC(d) + ")");
-          transition(foreground).attr("d", path);
-          background
-              .attr("d", path)
-            .transition()
-              .delay(500)
-              .duration(0)
-              .attr("visibility", null);
-        }));
-
-  // Add an axis and title.
-  g.append("g")
-      .attr("class", "axis")
-      .each(function(d) { d3.select(this).call(axisPC.scale(yPC[d])); })
-        .append("text")
-        .style("text-anchor", "middle")
-        .attr("y", -9)
-        .text(function(d) { return d; })
-        .style("fill", "black")
-  // Add and store a brush for each axis.
-  g.append("g")
-      .attr("class", "brush")
-      .each(function(d) {
-        d3.select(this).call(yPC[d].brush = d3.brushY()
-            .on("start", (function(event, d) {brushstart(event, d);}))
-            .on("brush", (function(event, d) {brush(event, d);})));
-      })
-    .selectAll("rect")
-      .attr("x", -8)
-      .attr("width", 16);
-});
-
-function position(d) {
-  var v = dragging[d];
-  return v == null ? xPC(d) : v;
-}
-
-function transition(g) {
-  return g.transition().duration(500);
-}
-
-// Returns the path for a given data point.
-function path(d) {
-    return linePC(dimensions.map(function(p) { return [xPC(p), yPC[p](d[p])];}));
-}
-
-function brushstart(event, d) {
-  event.sourceEvent.stopPropagation();
-}
-
-// Handles a brush event, toggling the display of foreground lines.
-function brush(event, d) {
-  var actives = dimensions.filter(function(p) { return !yPC[p].brush.empty(); }),
-      extents = actives.map(function(p) { return yPC[p].brush.extent(); });
-  foreground.style("display", function(d) {
-    return actives.every(function(p, i) {
-      return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-    }) ? null : "none";
-  });
-}
-}
