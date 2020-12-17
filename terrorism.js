@@ -158,22 +158,35 @@ function gen_choropleth_map() {
                 d3.select(this)
                     .style("opacity", 1)
                     .style("stroke", "black")
+
+
+                //grey out PC
+                svg_pc.selectAll("path")
+                .style("stroke", "#aba9a4")
+                .style("opacity", 0.2)
+                d3.select("path#pc-" + d.target.id)
+                .style("stroke", "#69b3a2")
+                .style("opacity", 1)
+                .attr("stroke-width", 3).raise()
             } else {
                 if (this.style.opacity == 0.5) {
                     d3.select(this)
                         .style("opacity", 1)
                         .style("stroke", "black")
                 }
-            }
-            //highlight PC
-            svg_pc.selectAll("path")
-                .style("stroke", "#aba9a4")
-                .style("opacity", 0.2)
 
-            d3.select("path#pc-" + d.target.id)
-                .style("stroke", "#69b3a2")
-                .style("opacity", 1)
-                .attr("stroke-width", 3).raise()
+                //highligh target PC
+                if(!selectedCountries.includes(d.target.id)) {
+                    d3.select("path#pc-" + d.target.id)
+                    .style("stroke", "#69b3a2")
+                    .style("opacity", 1)
+                    .attr("stroke-width", 3).raise()
+                }
+                
+            }
+            
+
+            
         }
 
         let mouseLeave = function(d) {
@@ -182,6 +195,13 @@ function gen_choropleth_map() {
                     .selectAll("path")
                     .style("opacity", 1)
                     .style("stroke", "transparent")
+
+                //unhighlight PC
+                svg_pc.selectAll("path")
+                    .style("stroke", "#69b3a2")
+                    .style("opacity", 0.5)
+                    .attr("stroke-width", 1)
+                
             } else {
                 if (this.style.opacity != 0.98) {
                     d3.select(this)
@@ -189,33 +209,46 @@ function gen_choropleth_map() {
                     .style("opacity", 0.5)
                         .style("stroke", "transparent")
                 }
+                //unhighlight one line from PC
+                if(!selectedCountries.includes(d.target.id)) {
+                    d3.select("path#pc-" + d.target.id)
+                    .style("stroke", "#aba9a4")
+                    .style("opacity", 0.5)
+                    .attr("stroke-width", 1)
+
+
+                }
+                
             }
 
 
-            //unhighlight PC
-            svg_pc.selectAll("path")
-                .style("stroke", "#69b3a2")
-                .style("opacity", 0.5)
-                .attr("stroke-width", 1)
+            
         }
 
         let click = function(event, d) {
-            if (selectedCountries.includes(d.properties.name)) {
-                var index = selectedCountries.indexOf(d.properties.name);
+            if (selectedCountries.includes(d.id)) {
+                var index = selectedCountries.indexOf(d.id);
                 selectedCountries.splice(index, 1);
                 d3.select(event.target)
                     .style("opacity", 0.5)
                     .style("stroke", "black")
                     .attr("stroke-width", 1)
+                
             } else {
-                selectedCountries.push(d.properties.name);
+                selectedCountries.push(d.id);
                 colorN += 1;
                 d3.select(event.target)
                     .style("opacity", 0.98)
                     .style("stroke", color[colorN % 5])
                     .attr("stroke-width", 2)
+
+                //HIGHLIGHT PC
+                d3.select("path#pc-" + event.target.id)
+                    .style("stroke", color[colorN % 5])
+                    .style("opacity", 1)
+                    .attr("stroke-width", 3).raise()
             }
-            renderLineChart(d.properties.name);
+            renderLineChart(d.id);
         }
 
 
@@ -230,7 +263,7 @@ function gen_choropleth_map() {
             .enter()
             .append("path")
             .attr("id", function(d) {
-                countries_ids.set("" + d.properties.name, d.id)
+                countries_ids.set(d.id,"" + d.properties.name)
                 return d.id;
             })
             .attr("d", path)
@@ -761,7 +794,9 @@ function button_attacks() {
     }
 }
 
-function renderLineChart(countryName) {
+function renderLineChart(countryID) {
+    countryName = countries_ids.get(countryID)
+    console.log(countryName)
     if (selectedCountries.length == 0) { //no selected countries
         if (context == 0) { axisChangeLineChart(12000); }
         if (context == 1) { axisChangeLineChart(6500); }
