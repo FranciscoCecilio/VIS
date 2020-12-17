@@ -946,9 +946,9 @@ function renterParallelCoordinates() {
 
 function rui() {
 
-    var margin = {top: 30, right: 10, bottom: 10, left: 10},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    var margin = { top: 30, right: 10, bottom: 10, left: 50 },
+        width = 750 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
 
 xPC = d3.scalePoint()
         .range([0, width])
@@ -1012,7 +1012,6 @@ d3.csv("dataGrouped_iso.csv").then(function(data) {
           background.attr("visibility", "hidden");
         })
         .on("drag", function(event, d) {
-            console.log(event);
           dragging[d] = Math.min(width, Math.max(0, event.x));
           foreground.attr("d", path);
           dimensions.sort(function(a, b) { return position(a) - position(b); });
@@ -1021,7 +1020,7 @@ d3.csv("dataGrouped_iso.csv").then(function(data) {
         })
         .on("end", function(event, d) {
           delete dragging[d];
-          transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
+          transition(d3.select(this)).attr("transform", "translate(" + xPC(d) + ")");
           transition(foreground).attr("d", path);
           background
               .attr("d", path)
@@ -1035,10 +1034,6 @@ d3.csv("dataGrouped_iso.csv").then(function(data) {
   g.append("g")
       .attr("class", "axis")
       .each(function(d) { d3.select(this).call(axisPC.scale(yPC[d])); })
-      .on("click", function(event, d) {
-          console.log("click do pc RUI");
-        })
-
         .append("text")
         .style("text-anchor", "middle")
         .attr("y", -9)
@@ -1048,7 +1043,6 @@ d3.csv("dataGrouped_iso.csv").then(function(data) {
   g.append("g")
       .attr("class", "brush")
       .each(function(d) {
-        console.log(yPC[d].domain);
         d3.select(this).call(yPC[d].brush = d3.brushY()
             .on("start", (function(event, d) {brushstart(event, d);}))
             .on("brush", (function(event, d) {brush(event, d);})));
