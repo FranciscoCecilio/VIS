@@ -43,6 +43,9 @@ var dimensions = [
     "Police"
 ];
 //
+//circle packing
+var node, nodes, pack;
+//
 //colors
 var color = ["DarkOrange", "DarkGreen", "DarkViolet", "DarkBlue", "DarkRed"];
 var colorN = 0;
@@ -134,7 +137,6 @@ function gen_choropleth_map() {
         .enter()
         .append('text')
         .attr("font-family", "Arial")
-        .attr("font-weight", "bold")
         .attr("x", function(d, i) {
             return 70;
         })
@@ -595,72 +597,70 @@ function gen_circle_packing() {
         heigth = 460,
         margin = 10;
 
-    var svg_circle_packing = d3.select("#circle_packing").append("svg")
+    svg_circle_packing = d3.select("#circle_packing").append("svg")
         .attr("width", width)
         .attr("height", heigth)
         .append("g")
         .attr("transform", "translate(" + margin + "," + margin + ")");
 
-    var pack = d3.pack()
+    pack = d3.pack()
         .size([width, heigth - 50])
         .padding(10);
-    if (context == 0)
-        d3.json("test1.json").then(function(data) {
-            var nodes = d3.hierarchy(data)
-                .sum(function(d) {
-                    return d.Attacks;
-                });
-            //console.log(pack(nodes).descendants());
-            var node = svg_circle_packing.selectAll(".node")
-                .data(pack(nodes).descendants())
-                .enter()
-                /*.filter(function(d) {
-                    return !d.children
-                })*/
-                .append("g")
-                .attr("class", "node")
-                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        
+    d3.json("dataHierarchy.json").then(function(data) {
+        nodes = d3.hierarchy(data)
+            .sum(function(d) {
+                return d.Fatalities;
+            });
+        //console.log(pack(nodes).descendants());
+        node = svg_circle_packing.selectAll(".node")
+            .data(pack(nodes).descendants())
+            .enter()
+            /*.filter(function(d) {
+                return !d.children
+            })*/
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-            node.append("circle")
-                .attr("r", function(d) {
-                    return d.r;
-                })
-                .attr("fill", "steelblue")
-                .attr("opacity", 0.25)
-                .attr("stroke", "#ADADAD")
-                .attr("stroke-width", "2");
-            //CountryName
-            node.append("text")
-                .text(function(d) {
-                    console.log(d.data["Country Name"]);
-                    return d.data["Country Name"];
-                })
-                .style("fill", "black")
-                .attr("font-family", "Arial")
-                .attr("font-weight", "bold")
-                .attr('transform', 'translate(-30, ' + (50 - heigth / 2) + ')');
-            //Perpetrators
-            /* node.append("text")
-                 .text(function(d) {
-                     return d.data.Perpetrator;
-                 })
-                 .style("fill", "green")
-                 .attr("font-family", "Arial")
-                 .style("text-anchor", "middle")
-                 .attr('transform', function(d) {
-                     console.log(node);
-                     return "translate(0,-" + d.r + ")"
-                 });
-             //Weapons
-             node.append("text")
-                  .text(function(d) {
-                      return d.data.Weapon;
-                  })
-                  .attr("font-family", "Arial")
-                  .style("text-anchor", "middle")
-                  .style("font-size", 12)
-                  //.attr("dx", function(d) { return -20 })*/
-        });
+        node.append("circle")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .attr("fill", "indianRed")
+            .attr("opacity", 0.25)
+            .attr("stroke", "#ADADAD")
+            .attr("stroke-width", "2");
+        //CountryName
+   /*     node.append("text")
+            .text(function(d) {
+                return d.data["Country Name"];
+            })
+            .style("fill", "black")
+            .attr("font-family", "Arial")
+            .attr('transform', 'translate(-30, ' + (50 - heigth / 2) + ')');*/
+        //Perpetrators
+        /* node.append("text")
+             .text(function(d) {
+                 return d.data.Perpetrator;
+             })
+             .style("fill", "green")
+             .attr("font-family", "Arial")
+             .style("text-anchor", "middle")
+             .attr('transform', function(d) {
+                 console.log(node);
+                 return "translate(0,-" + d.r + ")"
+             });
+         //Weapons
+         node.append("text")
+              .text(function(d) {
+                  return d.data.Weapon;
+              })
+              .attr("font-family", "Arial")
+              .style("text-anchor", "middle")
+              .style("font-size", 12)
+              //.attr("dx", function(d) { return -20 })*/
+    });
 }
 
 
@@ -785,6 +785,32 @@ function button_attacks() {
         }
         axisChangeLineChart(d3.max(linesSizes));
     }
+
+    //circle packing
+        d3.json("dataHierarchy.json").then(function(data) {
+            nodes = d3.hierarchy(data)
+                .sum(function(d) {
+                    return d.Attacks;
+                });
+            
+
+            svg_circle_packing.selectAll(".node").data(pack(nodes).descendants());
+
+
+            node.selectAll("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "steelblue");
+
+           /* svg_circle_packing.selectAll(".node").data(pack(nodes).descendants())
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "steelblue")
+                .transition()
+                .duration(1000);*/
+        });
 }
 
 function renderLineChart(countryID) {
