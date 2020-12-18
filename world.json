@@ -4902,6 +4902,7 @@
               -866
             ]
           ],
+		  "id": "411",
           "properties": {
             "name": "Kosovo"
           }
@@ -6815,7 +6816,7 @@
           ],
           "id": "666",
           "properties": {
-            "name": "St. Pierre and Miquelon"
+            "name": "St Pierre and Miquelon"
           }
         },
         {
@@ -6834,7 +6835,7 @@
           ],
           "id": "876",
           "properties": {
-            "name": "Wallis and Futuna Is."
+            "name": "Wallis and Futuna Is"
           }
         },
         {
@@ -6973,7 +6974,7 @@
           ],
           "id": "258",
           "properties": {
-            "name": "Fr. Polynesia"
+            "name": "Fr Polynesia"
           }
         },
         {
@@ -7036,7 +7037,7 @@
           ],
           "id": "260",
           "properties": {
-            "name": "Fr. S. Antarctic Lands"
+            "name": "Fr S Antarctic Lands"
           }
         },
         {
@@ -7318,7 +7319,7 @@
           ],
           "id": "226",
           "properties": {
-            "name": "Eq. Guinea"
+            "name": "Eq Guinea"
           }
         },
         {
@@ -7418,7 +7419,7 @@
           ],
           "id": "214",
           "properties": {
-            "name": "Dominican Rep."
+            "name": "Dominican Rep"
           }
         },
         {
@@ -7573,7 +7574,7 @@
           ],
           "id": "234",
           "properties": {
-            "name": "Faeroe Is."
+            "name": "Faeroe Is"
           }
         },
         {
@@ -7670,7 +7671,7 @@
             ]
           ],
           "properties": {
-            "name": "N. Cyprus"
+            "name": "N Cyprus"
           }
         },
         {
@@ -7869,7 +7870,7 @@
           ],
           "id": "180",
           "properties": {
-            "name": "Dem. Rep. Congo"
+            "name": "Dem Rep Congo"
           }
         },
         {
@@ -8271,7 +8272,7 @@
           ],
           "id": "140",
           "properties": {
-            "name": "Central African Rep."
+            "name": "Central African Rep"
           }
         },
         {
@@ -9396,7 +9397,7 @@
           ],
           "id": "070",
           "properties": {
-            "name": "Bosnia and Herz."
+            "name": "Bosnia and Herz"
           }
         },
         {
@@ -9949,7 +9950,7 @@
             ]
           ],
           "properties": {
-            "name": "Indian Ocean Ter."
+            "name": "Indian Ocean Ter"
           }
         },
         {
@@ -9961,7 +9962,7 @@
           ],
           "id": "334",
           "properties": {
-            "name": "Heard I. and McDonald Is."
+            "name": "Heard I and McDonald Is"
           }
         },
         {
@@ -9985,7 +9986,7 @@
           ],
           "id": "036",
           "properties": {
-            "name": "Ashmore and Cartier Is."
+            "name": "Ashmore and Cartier Is"
           }
         },
         {
@@ -10065,7 +10066,7 @@
           ],
           "id": "028",
           "properties": {
-            "name": "Antigua and Barb."
+            "name": "Antigua and Barb"
           }
         },
         {
