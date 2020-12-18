@@ -663,9 +663,9 @@ function gen_circle_packing() {
                 return d.r;
             })
             .attr("fill", "indianRed")
-            .attr("opacity", 0.25)
+            .attr("opacity", 0.50)
             .attr("stroke", "#ADADAD")
-            .attr("stroke-width", "2");
+            .attr("stroke-width", "0.1");
         //CountryName
    /*     node.append("text")
             .text(function(d) {
@@ -749,6 +749,7 @@ function button_deaths() {
             linesDraw[i]
                 .datum(dataGroup.get(true))
                 .transition()
+                .delay(500)
                 .duration(1000)
                 .attr("stroke", "indianRed")
                 .attr("d", d3.line()
@@ -760,31 +761,18 @@ function button_deaths() {
     }
     //circle packing
         d3.json("dataHierarchy.json").then(function(data) {
-            svg_circle_packing.selectAll(".node").remove();
             nodes = d3.hierarchy(data)
                 .sum(function(d) {
                     return d.Fatalities;
                 });
-            //console.log(pack(nodes).descendants());
-            node = svg_circle_packing.selectAll(".node")
-                .data(pack(nodes).descendants())
-                .enter()
-                /*.filter(function(d) {
-                    return !d.children
-                })*/
-                .append("g")
-                .attr("class", "node")
+            svg_circle_packing.selectAll(".node").data(pack(nodes).descendants())
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-            node.append("circle")
+            node.selectAll("circle")
                 .attr("r", function(d) {
                     return d.r;
                 })
-                .attr("fill", "indianRed")
-                .attr("opacity", 0.25)
-                .attr("stroke", "#ADADAD")
-                .attr("stroke-width", "2");
-
+                .attr("fill", "indianRed");
         });
 }
 
@@ -847,6 +835,7 @@ function button_attacks() {
             linesDraw[i]
                 .datum(dataGroup.get(true))
                 .transition()
+                .delay(500)
                 .duration(1000)
                 .attr("stroke", "steelblue")
                 .attr("d", d3.line()
@@ -859,31 +848,19 @@ function button_attacks() {
 
     //circle packing
         d3.json("dataHierarchy.json").then(function(data) {
-            svg_circle_packing.selectAll(".node").remove();
-            nodes = d3.hierarchy(data)
+             nodes = d3.hierarchy(data)
                 .sum(function(d) {
                     return d.Attacks;
                 });
             //console.log(pack(nodes).descendants());
-            node = svg_circle_packing.selectAll(".node")
-                .data(pack(nodes).descendants())
-                .enter()
-                /*.filter(function(d) {
-                    return !d.children
-                })*/
-                .append("g")
-                .attr("class", "node")
+            svg_circle_packing.selectAll(".node").data(pack(nodes).descendants())
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-            node.append("circle")
+            node.selectAll("circle")
                 .attr("r", function(d) {
                     return d.r;
                 })
-                .attr("fill", "steelblue")
-                .attr("opacity", 0.25)
-                .attr("stroke", "#ADADAD")
-                .attr("stroke-width", "2");
-
+                .attr("fill", "steelblue");
         });
 }
 
