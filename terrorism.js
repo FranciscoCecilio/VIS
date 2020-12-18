@@ -154,7 +154,10 @@ function gen_choropleth_map() {
 
     d3.json("world.json").then(function(topology) {
         let mouseOver = function(d) {
-            if (selectedCountries.length == 0) {
+            if(d.target.id == "null"){
+                return;
+            }
+            else if (selectedCountries.length == 0) {
                 svg_choropleth_map
                     .selectAll("path")
                     .style("opacity", .5)
@@ -230,6 +233,9 @@ function gen_choropleth_map() {
         }
 
         let click = function(event, d) {
+            if(event.target.id == "null"){
+                return;
+            }
             if (selectedCountries.includes(d.id)) {
                 var index = selectedCountries.indexOf(d.id);
                 selectedCountries.splice(index, 1);
@@ -271,12 +277,19 @@ function gen_choropleth_map() {
             .enter()
             .append("path")
             .attr("id", function(d) {
+                d.total = dataGroup.get(d.properties.name);
+                if(isNaN(d.total)) {
+                    return "null";
+                }
                 countries_ids.set(d.id,"" + d.properties.name)
                 return d.id;
             })
             .attr("d", path)
             .attr("fill", function(d) {
-                d.total = dataGroup.get(d.properties.name) || 0;
+                d.total = dataGroup.get(d.properties.name);
+                if(isNaN(d.total)) {
+                    return "#949494";
+                }
                 return colorScale(d.total);
             })
             .on("mouseover", mouseOver)
@@ -703,7 +716,11 @@ function button_deaths() {
         .duration(1000)
         .selectAll("path")
         .attr("fill", function(d) {
-            d.total = dataGroup.get(d.properties.name) || 0;
+            d.total = dataGroup.get(d.properties.name);
+            if(isNaN(d.total)) {
+                console.log("NAN");
+                return "#949494";
+            }
             return colorScale(d.total);
         });
 
@@ -798,7 +815,11 @@ function button_attacks() {
         .duration(1000)
         .selectAll("path")
         .attr("fill", function(d) {
-            d.total = dataGroup.get(d.properties.name) || 0;
+            d.total = dataGroup.get(d.properties.name);
+            if(isNaN(d.total)) {
+                console.log("NAN");
+                return "#949494";
+            }
             return colorScale(d.total);
         });
 
