@@ -741,6 +741,34 @@ function button_deaths() {
         }
         axisChangeLineChart(d3.max(linesSizes));
     }
+    //circle packing
+        d3.json("dataHierarchy.json").then(function(data) {
+            svg_circle_packing.selectAll(".node").remove();
+            nodes = d3.hierarchy(data)
+                .sum(function(d) {
+                    return d.Fatalities;
+                });
+            //console.log(pack(nodes).descendants());
+            node = svg_circle_packing.selectAll(".node")
+                .data(pack(nodes).descendants())
+                .enter()
+                /*.filter(function(d) {
+                    return !d.children
+                })*/
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+            node.append("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "indianRed")
+                .attr("opacity", 0.25)
+                .attr("stroke", "#ADADAD")
+                .attr("stroke-width", "2");
+
+        });
 }
 
 function button_attacks() {
@@ -810,28 +838,31 @@ function button_attacks() {
 
     //circle packing
         d3.json("dataHierarchy.json").then(function(data) {
+            svg_circle_packing.selectAll(".node").remove();
             nodes = d3.hierarchy(data)
                 .sum(function(d) {
                     return d.Attacks;
                 });
-            
+            //console.log(pack(nodes).descendants());
+            node = svg_circle_packing.selectAll(".node")
+                .data(pack(nodes).descendants())
+                .enter()
+                /*.filter(function(d) {
+                    return !d.children
+                })*/
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-            svg_circle_packing.selectAll(".node").data(pack(nodes).descendants());
-
-
-            node.selectAll("circle")
-                .attr("r", function(d) {
-                    return d.r;
-                })
-                .attr("fill", "steelblue");
-
-           /* svg_circle_packing.selectAll(".node").data(pack(nodes).descendants())
+            node.append("circle")
                 .attr("r", function(d) {
                     return d.r;
                 })
                 .attr("fill", "steelblue")
-                .transition()
-                .duration(1000);*/
+                .attr("opacity", 0.25)
+                .attr("stroke", "#ADADAD")
+                .attr("stroke-width", "2");
+
         });
 }
 
