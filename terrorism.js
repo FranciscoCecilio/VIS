@@ -325,7 +325,7 @@ function gen_line_chart() {
         // set the dimensions and margins of the graph
         var margin = { top: 60, right: 60, bottom: 60, left: 60 },
             width = 750 - margin.left - margin.right,
-            height = 300 - margin.top - margin.bottom;
+            height = 290 - margin.top - margin.bottom;
 
         // append the svg obgect to the body of the page
         // appends a 'group' element to 'svg'
@@ -449,7 +449,7 @@ function gen_parallel_coordinates() {
 
     var margin = { top: 30, right: 10, bottom: 10, left: 50 },
         width = 750 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+        height = 250 - margin.top - margin.bottom;
 
     xPC = d3.scalePoint()
             .range([0, width])
