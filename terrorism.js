@@ -66,9 +66,9 @@ d3.json("terrorism_attacks.json").then(function(data) {
 
 function gen_choropleth_map() {
     var margin = { top: 30, right: 10, bottom: 10, left: 0 },
-        width = 1000 - margin.left - margin.right,
+        width = 750 - margin.left - margin.right,
 
-        height = 500 - margin.top - margin.bottom;
+        height = 400;
 
     //reset_button = d3.select("#reset_button")
     //reset_button.attr("show",false)
@@ -130,8 +130,8 @@ function gen_choropleth_map() {
     svg_choropleth_map.append("rect")
         .attr("class", "linearLegend")
         .attr("transform", "translate(38,270)")
-        .attr("width", 20)
-        .attr("height", 150)
+        .attr("width", 10)
+        .attr("height", 100)
         .style("fill", "url(#gradient_red)").raise;
 
     var legend = svg_choropleth_map.selectAll("#gradient_red")
@@ -139,11 +139,12 @@ function gen_choropleth_map() {
         .enter()
         .append('text')
         .attr("font-family", "Arial")
+        .attr("font-size","10")
         .attr("x", function(d, i) {
-            return 70;
+            return 60;
         })
         .attr("y", function(d, i) {
-            return 255 + i * 32;
+            return 255 + i * 22 ;
         })
         .text(function(d) {
             return d;
@@ -323,9 +324,9 @@ function gen_choropleth_map() {
 function gen_line_chart() {
     d3.json("security.json").then(function(datasetSecurity) {
         // set the dimensions and margins of the graph
-        var margin = { top: 60, right: 60, bottom: 60, left: 60 },
-            width = 750 - margin.left - margin.right,
-            height = 290 - margin.top - margin.bottom;
+        var margin = { top: 60, right: 60, bottom: 30, left: 60 },
+            width = 740 - margin.left - margin.right,
+            height = 200;
 
         // append the svg obgect to the body of the page
         // appends a 'group' element to 'svg'
@@ -448,8 +449,8 @@ function gen_line_chart() {
 function gen_parallel_coordinates() {
 
     var margin = { top: 30, right: 10, bottom: 10, left: 50 },
-        width = 750 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
+        width = 690 - margin.left - margin.right,
+        height = 290 - margin.top - margin.bottom;
 
     xPC = d3.scalePoint()
             .range([0, width])
@@ -629,7 +630,7 @@ function brush(event, d) {
 
 function gen_circle_packing() {
     var width = 510,
-        heigth = 460,
+        heigth = 400,
         margin = 10;
 
     svg_circle_packing = d3.select("#circle_packing").append("svg")
@@ -976,12 +977,19 @@ function axisChangeLineChart(value) {
 
 
 function reset_countries(color){
+    console.log("BEFORE: "+selectedCountries);
+    selectedCountries.forEach(function(i) {
+        renderLineChart(i);
+    });
     selectedCountries = [];
     /*d3.selectAll("rect")
       .transition()
       .duration(2000)
       .style("fill", color)*/
     console.log("RESET")
+    //d3.selectAll("svg > *").remove();
 
-    renderLineChart();
-    }
+
+    console.log("AFTER: "+selectedCountries);
+    
+}

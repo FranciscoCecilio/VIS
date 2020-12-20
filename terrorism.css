@@ -48,31 +48,42 @@ div.idiom_map {
   left:0px;
   top:2px;
   border-style: solid;
-  border-color:coral;
-  border-width: 0px;
+  border-color:#35383b;
+  border-width: 4px;
+  border-radius: 25px;
+  background-color: #99a4ad;
+  margin-right:10px;
+  margin-bottom:10px;
 }
 div.idiom_cp {
   position:relative;
   top:2px;
-  border-style:solid;
-  border-color:coral;
+  border-style: solid;
+  border-color:#35383b;
+  border-width: 4px;
+  border-radius: 25px;
   border-width: 0px;
 }
 div.idiom_lc {
   position:relative;
   left:0px;
   bottom:2px;
-  border-style:solid;
-  border-color:coral;
-  border-width: 0px;
+  border-style: solid;
+  border-color:#35383b;
+  border-width: 4px;
+  border-radius: 25px;
+  background-color: #99a4ad;
+  margin-right:10px;
 }
 div.idiom_pc {
   position:relative;
   left:0px;
   bottom:2px;
-  border-style:solid;
-  border-color:coral;
-  border-width: 0px;
+  border-style: solid;
+  border-color:#35383b;
+  border-width: 4px;
+  border-radius: 25px;
+  background-color: #99a4ad;
 }
 
 
@@ -212,5 +223,5 @@ div.idiom_pc {
 
 
 body{
-  background-color: #d4faec;
+  background-color: #4b5761;
 }
