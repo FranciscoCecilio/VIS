@@ -1,8 +1,11 @@
 h1 {
-  font-size: 18pt;
+  font-size: 24pt;
   font-family: arial, calibri, sans serif;
   text-align: center;
-  color: #5376ad;
+  color: #e6564e;
+  margin-bottom: 0px;
+  margin-top: 0px;
+
 }
 
 .axis path,
@@ -212,7 +215,7 @@ div.idiom_pc {
 
 .foreground path {
   fill: none;
-  stroke: #69b3a2;
+  stroke: #4786e6;
 }
 
 .brush .extent {

@@ -170,12 +170,12 @@ function gen_choropleth_map() {
 
                 //grey out PC
                 svg_pc.selectAll("path")
-                .style("stroke", "#aba9a4")
+                .style("stroke", "#bdbdbd")
                 .style("opacity", 0.2)
                 d3.select("path#pc-" + d.target.id)
-                .style("stroke", "#69b3a2")
+                .style("stroke", "#4786e6")
                 .style("opacity", 1)
-                .attr("stroke-width", 3).raise()
+                .attr("stroke-width", 1).raise()
             } else {
                 if (this.style.opacity == 0.5) {
                     d3.select(this)
@@ -186,9 +186,9 @@ function gen_choropleth_map() {
                 //highligh target PC
                 if(!selectedCountries.includes(d.target.id)) {
                     d3.select("path#pc-" + d.target.id)
-                    .style("stroke", "#69b3a2")
+                    .style("stroke", "#4786e6")
                     .style("opacity", 1)
-                    .attr("stroke-width", 3).raise()
+                    .attr("stroke-width", 1).raise()
                 }
                 
             }
@@ -206,7 +206,7 @@ function gen_choropleth_map() {
 
                 //unhighlight PC
                 svg_pc.selectAll("path")
-                    .style("stroke", "#69b3a2")
+                    .style("stroke", "#4786e6")
                     .style("opacity", 0.5)
                     .attr("stroke-width", 1)
                 
@@ -528,7 +528,7 @@ function gen_parallel_coordinates() {
                         .datum(dataGroupy1.get(true))
                         .transition()
                         .duration(1000)
-                        .attr("stroke", "seagreen")
+                        .attr("stroke", "#4786e6")
                         .attr("d", d3.line()
                             .x(function(d) { return x(d[0]); })
                             .y(function(d) { return y1(d[1]); })
@@ -545,7 +545,7 @@ function gen_parallel_coordinates() {
                         .datum(dataGroupy1.get(true))
                         .transition()
                         .duration(1000)
-                        .attr("stroke", "seagreen")
+                        .attr("stroke", "#4786e6")
                         .attr("d", d3.line()
                             .x(function(d) { return x(d[0]); })
                             .y(function(d) { return y1(d[1]); })
@@ -631,13 +631,13 @@ function brush(event, d) {
 function gen_circle_packing() {
     var width = 510,
         heigth = 400,
-        margin = 10;
+        margin = 20;
 
     svg_circle_packing = d3.select("#circle_packing").append("svg")
         .attr("width", width)
         .attr("height", heigth)
         .append("g")
-        .attr("transform", "translate(" + margin + "," + margin + ")");
+        .attr("transform", "translate(" + (margin+50) + "," + margin + ")");
 
     pack = d3.pack()
         .size([width, heigth - 50])
