@@ -169,7 +169,7 @@ function gen_choropleth_map() {
 
 
                 //grey out PC
-                svg_pc.selectAll("path")
+                svg_pc.selectAll("path[id^=pc]")
                 .style("stroke", "#bdbdbd")
                 .style("opacity", 0.2)
                 d3.select("path#pc-" + d.target.id)
@@ -190,7 +190,6 @@ function gen_choropleth_map() {
                     .style("opacity", 1)
                     .attr("stroke-width", 1).raise()
                 }
-                
             }
             
 
@@ -205,7 +204,7 @@ function gen_choropleth_map() {
                     .style("stroke", "transparent")
 
                 //unhighlight PC
-                svg_pc.selectAll("path")
+                svg_pc.selectAll("path[id^=pc]")
                     .style("stroke", "#4786e6")
                     .style("opacity", 0.5)
                     .attr("stroke-width", 1)
@@ -483,12 +482,12 @@ function gen_parallel_coordinates() {
                     .range([height, 0])
             }
           // Add grey background lines for context.
-          background = svg_pc.append("g")
+          /*background = svg_pc.append("g")
               .attr("class", "background")
             .selectAll("path")
               .data(data)
             .enter().append("path")
-              .attr("d", path);
+              .attr("d", path);*/
 
           // Add blue foreground lines for focus.
           foreground = svg_pc.append("g")
