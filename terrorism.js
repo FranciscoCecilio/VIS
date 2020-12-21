@@ -1045,6 +1045,15 @@ function render_circle(){
                 .attr("opacity", 0.50)
                 .attr("stroke", "#ADADAD")
                 .attr("stroke-width", "0.1");
+
+            node.append("text")
+                .text(function(d) {
+                    return d.data["Country Name"];
+                })
+                .style("fill", "black")
+                .attr("font-family", "Arial")
+                .attr("font-size", 14 - selectedCountries.length)
+                .attr('transform', 'translate(-30, ' + (50 / 2) + ')');
         } else if (context == 1) {
             nodes = d3.hierarchy(circles)
                 .sum(function(d) {
@@ -1067,6 +1076,15 @@ function render_circle(){
                 .attr("opacity", 0.50)
                 .attr("stroke", "#ADADAD")
                 .attr("stroke-width", "0.1");
+             
+            node.append("text")
+                .text(function(d) {
+                    return d.data["Country Name"];
+                })
+                .style("fill", "black")
+                .attr("font-family", "Arial")
+                .attr("font-size", 14 - selectedCountries.length)
+                .attr('transform', 'translate(-30, ' + (50 / 2) + ')');
         }
     }
 }
