@@ -230,6 +230,9 @@ function gen_choropleth_map() {
                 }
                 
             }
+            
+            //hack!!
+            if (selectedCountries.length > 0) {render_circle();}
 
 
             
@@ -849,12 +852,13 @@ function renderLineChart(countryID) {
         linesOriginal[0].style("opacity", 1);
         linesOriginal[1].style("opacity", 1);
         axisY1.style("opacity", 1);
-        render_circle(0);
     }
     if (linesDrawNames.length == 0) { //first selected country
         linesOriginal[0].style("opacity", 0);
         linesOriginal[1].style("opacity", 0);
         axisY1.style("opacity", 0);
+        node.remove();
+        nodes= 0;
     }
     if (linesDrawNames.includes(countryName)) { //delete line
         var index = linesDrawNames.indexOf(countryName);
@@ -867,7 +871,7 @@ function renderLineChart(countryID) {
         }
         //circle pack
         circles.children.splice(index, 1);
-        render_circle(1);
+        render_circle();
     } else { //add line
 
         //circle pack
@@ -877,7 +881,7 @@ function renderLineChart(countryID) {
                     circles.children.push(element);
                 };})
         });
-        render_circle(1);
+        render_circle();
         if (context == 0) {
             var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"] == countryName, d => d.Date);
             linesSizes.push(d3.max(dataGroup.get(true).values()));
@@ -963,35 +967,62 @@ function axisChangeLineChart(value) {
     }
 }
 
-function render_circle(mode){
+function render_circle(){
     //mode 0 to nothing selected or mode 1 for select countries 
     node.remove();
     nodes= 0;
     
-    if (mode == 0) {
+    if (selectedCountries.length == 0) {
+        if (context == 0) {
         d3.json("dataHierarchy.json").then(function(data) {
-        nodes = d3.hierarchy(data)
-            .sum(function(d) {
-                return d.Fatalities;
-            })
-            .sort(d3.descending);
-        node = svg_circle_packing.selectAll(".node")
-            .data(pack(nodes).descendants())
-            .enter()
-            .append("g")
-            .attr("class", "node")
-            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            nodes = d3.hierarchy(data)
+                .sum(function(d) {
+                    return d.Fatalities;
+                })
+                .sort(d3.descending);
 
-        node.append("circle")
-            .attr("r", function(d) {
-                return d.r;
-            })
-            .attr("fill", "indianRed")
-            .attr("opacity", 0.50)
-            .attr("stroke", "#ADADAD")
-            .attr("stroke-width", "0.1");
+            node = svg_circle_packing.selectAll("circle.node")
+                .data(pack(nodes).descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+            node.append("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "indianRed")
+                .attr("opacity", 0.50)
+                .attr("stroke", "#ADADAD")
+                .attr("stroke-width", "0.1");
         });
-    }else if (mode == 1) {   
+        }else if (context == 1) {
+        d3.json("dataHierarchy.json").then(function(data) {
+            nodes = d3.hierarchy(data)
+                .sum(function(d) {
+                    return d.Attacks;
+                })
+                .sort(d3.descending);
+
+            node = svg_circle_packing.selectAll("circle.node")
+                .data(pack(nodes).descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+            node.append("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "steelblue")
+                .attr("opacity", 0.50)
+                .attr("stroke", "#ADADAD")
+                .attr("stroke-width", "0.1");
+        });
+        }
+    }else {   
         if (context == 0) {
             nodes = d3.hierarchy(circles)
                 .sum(function(d) {
