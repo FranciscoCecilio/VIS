@@ -45,6 +45,8 @@ var dimensions = [
 //
 //circle packing
 var node, nodes, pack;
+
+var circles ={"name": "Topo","children": []}
 //
 //colors
 var color = ["DarkOrange", "DarkGreen", "DarkViolet", "DarkBlue", "DarkRed"];
@@ -760,20 +762,29 @@ function button_deaths() {
         axisChangeLineChart(d3.max(linesSizes));
     }
     //circle packing
-        d3.json("dataHierarchy.json").then(function(data) {
-            nodes = d3.hierarchy(data)
-                .sum(function(d) {
-                    return d.Fatalities;
-                });
-            svg_circle_packing.selectAll(".node").data(pack(nodes).descendants())
+        data=svg_circle_packing.select(".node").data();
+        
+        node.remove();
+
+        nodes = d3.hierarchy(data)
+            .sum(function(d) {
+                return d.Fatalities;
+            });
+        node = svg_circle_packing.selectAll(".node")
+                .data(pack(nodes).descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-            node.selectAll("circle")
-                .attr("r", function(d) {
-                    return d.r;
-                })
-                .attr("fill", "indianRed");
-        });
+        node.append("circle")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .attr("fill", "indianRed")
+            .attr("opacity", 0.50)
+            .attr("stroke", "#ADADAD")
+            .attr("stroke-width", "0.1");
 }
 
 function button_attacks() {
@@ -847,21 +858,28 @@ function button_attacks() {
     }
 
     //circle packing
-        d3.json("dataHierarchy.json").then(function(data) {
-             nodes = d3.hierarchy(data)
-                .sum(function(d) {
-                    return d.Attacks;
-                });
-            //console.log(pack(nodes).descendants());
-            svg_circle_packing.selectAll(".node").data(pack(nodes).descendants())
+        data=svg_circle_packing.select(".node").data();
+         node.remove();
+         nodes = d3.hierarchy(data)
+            .sum(function(d) {
+                return d.Attacks;
+            });
+        node = svg_circle_packing.selectAll(".node")
+                .data(pack(nodes).descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-            node.selectAll("circle")
-                .attr("r", function(d) {
-                    return d.r;
-                })
-                .attr("fill", "steelblue");
-        });
+        node.append("circle")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .attr("fill", "steelblue")
+            .attr("opacity", 0.50)
+            .attr("stroke", "#ADADAD")
+            .attr("stroke-width", "0.1");
+
 }
 
 function renderLineChart(countryID) {
@@ -888,7 +906,44 @@ function renderLineChart(countryID) {
             axisChangeLineChart(d3.max(linesSizes));
         }
     } else { //add line
+
+        d3.json("dataHierarchy.json").then(function(data) {
+            data.children.forEach(function(element){
+                if (element["Country Name"] == countryName){
+                    circles.children.push(element);
+                };})
+        });
+       
+
         if (context == 0) {
+
+
+            node.remove();
+
+            nodes = d3.hierarchy(circles)
+                .sum(function(d) {
+                    return d.Fatalities;
+                });
+
+            node = svg_circle_packing.selectAll(".node")
+                .data(pack(nodes).descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+            node.append("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "indianRed")
+                .attr("opacity", 0.50)
+                .attr("stroke", "#ADADAD")
+                .attr("stroke-width", "0.1");
+
+
+
+
             var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"] == countryName, d => d.Date);
             linesSizes.push(d3.max(dataGroup.get(true).values()));
             if (d3.max(linesSizes) != y0.domain()[1]) { //change axis size
