@@ -27,6 +27,7 @@ var linesSizes = [];
 
 var x, y0, y1;
 var axisX, axisY0, axisY1;
+var textY0, textY1;
 //
 //parallel coordinates
 var xPC, yPC;
@@ -393,56 +394,24 @@ function gen_line_chart() {
             .attr("transform", "translate( " + width + ", 0 )")
             .call(d3.axisRight(y1));
 
+        //titles axis
+        textY0=axisY0.append("text")
+                .style("text-anchor", "middle")
+                .attr("stroke", "indianred")
+                .attr("stroke-width", 0.5)
+                .attr("y", -9)
+                .text(function(d) { return "Comulative Deaths"; })
+                .style("fill", "black")
 
-        //INTERACTIVE 
-        /*var focus = svg_line_chart
-            .append('g')
-            .append('circle')
-            .style("fill", "none")
-            .attr("stroke", "black")
-            .attr('r', 8.5)
-            .style("opacity", 0)
-
-        var focusText = svg_line_chart
-            .append('g')
-            .append('text')
-            .style("opacity", 0)
-            .attr("text-anchor", "left")
-            .attr("alignment-baseline", "middle")
+        textY1=axisY1.append("text")
+                .style("text-anchor", "middle")
+                .attr("stroke", "seagreen")
+                .attr("stroke-width", 0.5)
+                .attr("y", -9)
+                .text(function(d) { return "Military Investment"; })
+                .style("fill", "black")
 
 
-        svg_line_chart
-            .append('rect')
-            .style("fill", "none")
-            .style("pointer-events", "all")
-            .attr('width', width)
-            .attr('height', height)
-            .on('mouseover', mouseover)
-            .on('mousemove', mousemove)
-            .on('mouseout', mouseout);
-        function mouseover() {
-            focus.style("opacity", 1)
-            focusText.style("opacity",1)
-        }
-        function mousemove() {
-            // recover coordinate we need
-            var x0 = x.invert(d3.pointer(this)[0]);
-            var i = bisect(datasetSecurity, x0, 1);
-            selectedData = datasetSecurity[i]
-            focus
-              .attr("cx", x(selectedData.x))
-              .attr("cy", y(selectedData.y))
-            focusText
-              .html("x:" + selectedData.x + "  -  " + "y:" + selectedData.y)
-              .attr("x", x(selectedData.x)+15)
-              .attr("y", y(selectedData.y))
-            }
-          function mouseout() {
-            focus.style("opacity", 0)
-            focusText.style("opacity", 0)
-          }
-
-        */
     });
 
 }
@@ -512,7 +481,7 @@ function gen_parallel_coordinates() {
                 .subject(function(d) { return {xPC: xPC(d)}; })
                 .on("start", function(event, d) {
                   dragging[d] = xPC(d);
-                  background.attr("visibility", "hidden");
+                  //background.attr("visibility", "hidden");
 
                   if (d == "Fatalities") {
                     document.getElementById("deaths_r").click();
@@ -525,11 +494,12 @@ function gen_parallel_coordinates() {
                     axisY1
                         .attr("class", "axisGreen")
                         .call(d3.axisRight(y1).ticks(5));
+                     textY1.text(function(d) { return "Military Investment"; })
                     linesOriginal[1]
                         .datum(dataGroupy1.get(true))
                         .transition()
                         .duration(1000)
-                        .attr("stroke", "#4786e6")
+                        .attr("stroke", "seagreen")
                         .attr("d", d3.line()
                             .x(function(d) { return x(d[0]); })
                             .y(function(d) { return y1(d[1]); })
@@ -542,11 +512,12 @@ function gen_parallel_coordinates() {
                     axisY1
                         .attr("class", "axisGreen")
                         .call(d3.axisRight(y1).ticks(5));
+                    textY1.text(function(d) { return "Police Investment"; })
                     linesOriginal[1]
                         .datum(dataGroupy1.get(true))
                         .transition()
                         .duration(1000)
-                        .attr("stroke", "#4786e6")
+                        .attr("stroke", "seagreen")
                         .attr("d", d3.line()
                             .x(function(d) { return x(d[0]); })
                             .y(function(d) { return y1(d[1]); })
@@ -568,12 +539,12 @@ function gen_parallel_coordinates() {
                   delete dragging[d];
                   transition(d3.select(this)).attr("transform", "translate(" + xPC(d) + ")");
                   transition(foreground).attr("d", path);
-                  background
+                  /*background
                       .attr("d", path)
                     .transition()
                       .delay(500)
                       .duration(0)
-                      .attr("visibility", null);
+                      .attr("visibility", null);*/
             }));
 
           // Add an axis and title.
@@ -586,7 +557,7 @@ function gen_parallel_coordinates() {
                 .text(function(d) { return d; })
                 .style("fill", "black")
           // Add and store a brush for each axis.
-          g.append("g")
+          /*g.append("g")
               .attr("class", "brush")
               .each(function(d) {
                 d3.select(this).call(yPC[d].brush = d3.brushY()
@@ -595,7 +566,7 @@ function gen_parallel_coordinates() {
               })
             .selectAll("rect")
               .attr("x", -8)
-              .attr("width", 16);
+              .attr("width", 16);*/
 });
 
 function position(d) {
@@ -731,9 +702,6 @@ function button_deaths() {
     var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d.Date);
 
     y0.domain([0, d3.max(dataGroup.values())]);
-    axisY0
-        .attr("class", "axisRed")
-        .call(d3.axisLeft(y0).ticks(5));
     linesOriginal[0]
         .datum(dataGroup)
         .transition()
@@ -743,6 +711,13 @@ function button_deaths() {
             .x(function(d) { return x(d[0]); })
             .y(function(d) { return y0(d[1]); })
         );
+
+    textY0
+                .attr("stroke", "indianred")
+                .text(function(d) { return "Comulative Deaths"; })
+    axisY0
+        .attr("class", "axisRed")
+        .call(d3.axisLeft(y0).ticks(5));
     //selection lines
     if (linesDraw.length > 0) {
         for (let i = 0; i < linesDraw.length; i++) {
@@ -762,29 +737,18 @@ function button_deaths() {
         axisChangeLineChart(d3.max(linesSizes));
     }
     //circle packing
-        data=svg_circle_packing.select(".node").data();
-        
-        node.remove();
-
-        nodes = d3.hierarchy(data)
-            .sum(function(d) {
-                return d.Fatalities;
-            });
-        node = svg_circle_packing.selectAll(".node")
-                .data(pack(nodes).descendants())
-                .enter()
-                .append("g")
-                .attr("class", "node")
-                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-        node.append("circle")
-            .attr("r", function(d) {
-                return d.r;
-            })
-            .attr("fill", "indianRed")
-            .attr("opacity", 0.50)
-            .attr("stroke", "#ADADAD")
-            .attr("stroke-width", "0.1");
+        d3.json("dataHierarchy.json").then(function(data) {
+            nodes = d3.hierarchy(data)
+                .sum(function(d) {
+                    return d.Fatalities;
+                });
+        svg_circle_packing.selectAll(".node").data(pack(nodes).descendants());
+        node.selectAll("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "indianRed");
+        });
 }
 
 function button_attacks() {
@@ -829,6 +793,9 @@ function button_attacks() {
     axisY0
         .attr("class", "axisSteelBlue")
         .call(d3.axisLeft(y0).ticks(5));
+    textY0
+        .attr("stroke", "steelblue")
+        .text(function(d) { return "Attacks Count"; })
     linesOriginal[0]
         .datum(dataGroup)
         .transition()
@@ -858,27 +825,19 @@ function button_attacks() {
     }
 
     //circle packing
-        data=svg_circle_packing.select(".node").data();
-         node.remove();
-         nodes = d3.hierarchy(data)
-            .sum(function(d) {
-                return d.Attacks;
-            });
-        node = svg_circle_packing.selectAll(".node")
-                .data(pack(nodes).descendants())
-                .enter()
-                .append("g")
-                .attr("class", "node")
-                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-        node.append("circle")
-            .attr("r", function(d) {
-                return d.r;
-            })
-            .attr("fill", "steelblue")
-            .attr("opacity", 0.50)
-            .attr("stroke", "#ADADAD")
-            .attr("stroke-width", "0.1");
+        d3.json("dataHierarchy.json").then(function(data) {
+             nodes = d3.hierarchy(data)
+                .sum(function(d) {
+                    return d.Attacks;
+                });
+            //console.log(pack(nodes).descendants());
+            svg_circle_packing.selectAll(".node").data(pack(nodes).descendants());
+            node.selectAll("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "steelblue");
+        });
 
 }
 
