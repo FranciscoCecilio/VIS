@@ -849,6 +849,7 @@ function renderLineChart(countryID) {
         linesOriginal[0].style("opacity", 1);
         linesOriginal[1].style("opacity", 1);
         axisY1.style("opacity", 1);
+        render_circle(0);
     }
     if (linesDrawNames.length == 0) { //first selected country
         linesOriginal[0].style("opacity", 0);
@@ -864,45 +865,20 @@ function renderLineChart(countryID) {
         if (linesSizes.length > 0 && d3.max(linesSizes) != y0.domain()[1]) { //change axis size
             axisChangeLineChart(d3.max(linesSizes));
         }
+        //circle pack
+        circles.children.splice(index, 1);
+        render_circle(1);
     } else { //add line
 
+        //circle pack
         d3.json("dataHierarchy.json").then(function(data) {
             data.children.forEach(function(element){
                 if (element["Country Name"] == countryName){
                     circles.children.push(element);
                 };})
         });
-       
-
+        render_circle(1);
         if (context == 0) {
-
-
-            node.remove();
-
-            nodes = d3.hierarchy(circles)
-                .sum(function(d) {
-                    return d.Fatalities;
-                });
-
-            node = svg_circle_packing.selectAll(".node")
-                .data(pack(nodes).descendants())
-                .enter()
-                .append("g")
-                .attr("class", "node")
-                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-            node.append("circle")
-                .attr("r", function(d) {
-                    return d.r;
-                })
-                .attr("fill", "indianRed")
-                .attr("opacity", 0.50)
-                .attr("stroke", "#ADADAD")
-                .attr("stroke-width", "0.1");
-
-
-
-
             var dataGroup = d3.rollup(dataset, v => d3.sum(v, d => d.Fatalities), d => d["Country Name"] == countryName, d => d.Date);
             linesSizes.push(d3.max(dataGroup.get(true).values()));
             if (d3.max(linesSizes) != y0.domain()[1]) { //change axis size
@@ -983,6 +959,83 @@ function axisChangeLineChart(value) {
                         .y(function(d) { return y0(d[1]); })
                     );
             }
+        }
+    }
+}
+
+function render_circle(mode){
+    //mode 0 to nothing selected or mode 1 for select countries 
+    node.remove();
+    nodes= 0;
+    
+    if (mode == 0) {
+        d3.json("dataHierarchy.json").then(function(data) {
+        nodes = d3.hierarchy(data)
+            .sum(function(d) {
+                return d.Fatalities;
+            })
+            .sort(d3.descending);
+        node = svg_circle_packing.selectAll(".node")
+            .data(pack(nodes).descendants())
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+        node.append("circle")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .attr("fill", "indianRed")
+            .attr("opacity", 0.50)
+            .attr("stroke", "#ADADAD")
+            .attr("stroke-width", "0.1");
+        });
+    }else if (mode == 1) {   
+        if (context == 0) {
+            nodes = d3.hierarchy(circles)
+                .sum(function(d) {
+                    return d.Fatalities;
+                })
+                .sort(d3.descending);
+
+            node = svg_circle_packing.selectAll("circle.node")
+                .data(pack(nodes).descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+            node.append("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "indianRed")
+                .attr("opacity", 0.50)
+                .attr("stroke", "#ADADAD")
+                .attr("stroke-width", "0.1");
+        } else if (context == 1) {
+            nodes = d3.hierarchy(circles)
+                .sum(function(d) {
+                    return d.Attacks;
+                })
+                .sort(d3.descending);
+
+            node = svg_circle_packing.selectAll("circle.node")
+                .data(pack(nodes).descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+            node.append("circle")
+                .attr("r", function(d) {
+                    return d.r;
+                })
+                .attr("fill", "steelblue")
+                .attr("opacity", 0.50)
+                .attr("stroke", "#ADADAD")
+                .attr("stroke-width", "0.1");
         }
     }
 }
