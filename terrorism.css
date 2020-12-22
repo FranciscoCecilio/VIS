@@ -207,22 +207,12 @@ div.idiom_pc {
 
 
 
-.background path {
-  fill: none;
-  stroke: #ddd;
-  shape-rendering: crispEdges;
-}
 
 .foreground path {
   fill: none;
-  stroke: #4786e6;
+  stroke: #006600;
 }
 
-.brush .extent {
-  fill-opacity: .3;
-  stroke: #fff;
-  shape-rendering: crispEdges;
-}
 
 
 body{

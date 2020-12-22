@@ -176,7 +176,7 @@ function gen_choropleth_map() {
                 .style("stroke", "#bdbdbd")
                 .style("opacity", 0.2)
                 d3.select("path#pc-" + d.target.id)
-                .style("stroke", "#4786e6")
+                .style("stroke", "#006600")
                 .style("opacity", 1)
                 .attr("stroke-width", 1).raise()
             } else {
@@ -189,7 +189,7 @@ function gen_choropleth_map() {
                 //highligh target PC
                 if(!selectedCountries.includes(d.target.id)) {
                     d3.select("path#pc-" + d.target.id)
-                    .style("stroke", "#4786e6")
+                    .style("stroke", "#006600")
                     .style("opacity", 1)
                     .attr("stroke-width", 1).raise()
                 }
@@ -208,7 +208,7 @@ function gen_choropleth_map() {
 
                 //unhighlight PC
                 svg_pc.selectAll("path[id^=pc]")
-                    .style("stroke", "#4786e6")
+                    .style("stroke", "#006600")
                     .style("opacity", 0.5)
                     .attr("stroke-width", 1)
                 
@@ -333,9 +333,6 @@ function gen_line_chart() {
             width = 740 - margin.left - margin.right,
             height = 200;
 
-        // append the svg obgect to the body of the page
-        // appends a 'group' element to 'svg'
-        // moves the 'group' element to the top left margin
         svg_line_chart = d3.select("#line_chart").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -451,19 +448,10 @@ function gen_parallel_coordinates() {
                 scale = [0, d3.max(data, function(d) { return +d[name]; })];
 
                 yPC[name] = d3.scaleLinear()
-                    .domain(scale) // --> Same axis range for each group
-                    // --> different axis range for each group --> .domain( [d3.extent(data, function(d) { return +d[name]; })] )
+                    .domain(scale) 
                     .range([height, 0])
             }
-          // Add grey background lines for context.
-          /*background = svg_pc.append("g")
-              .attr("class", "background")
-            .selectAll("path")
-              .data(data)
-            .enter().append("path")
-              .attr("d", path);*/
 
-          // Add blue foreground lines for focus.
           foreground = svg_pc.append("g")
               .attr("class", "foreground")
             .selectAll("path")
@@ -484,7 +472,6 @@ function gen_parallel_coordinates() {
                 .subject(function(d) { return {xPC: xPC(d)}; })
                 .on("start", function(event, d) {
                   dragging[d] = xPC(d);
-                  //background.attr("visibility", "hidden");
 
                   if (d == "Fatalities") {
                     document.getElementById("deaths_r").click();
@@ -542,12 +529,6 @@ function gen_parallel_coordinates() {
                   delete dragging[d];
                   transition(d3.select(this)).attr("transform", "translate(" + xPC(d) + ")");
                   transition(foreground).attr("d", path);
-                  /*background
-                      .attr("d", path)
-                    .transition()
-                      .delay(500)
-                      .duration(0)
-                      .attr("visibility", null);*/
             }));
 
           // Add an axis and title.
@@ -559,17 +540,6 @@ function gen_parallel_coordinates() {
                 .attr("y", -9)
                 .text(function(d) { return d; })
                 .style("fill", "black")
-          // Add and store a brush for each axis.
-          /*g.append("g")
-              .attr("class", "brush")
-              .each(function(d) {
-                d3.select(this).call(yPC[d].brush = d3.brushY()
-                    .on("start", (function(event, d) {brushstart(event, d);}))
-                    .on("brush", (function(event, d) {brush(event, d);})));
-              })
-            .selectAll("rect")
-              .attr("x", -8)
-              .attr("width", 16);*/
 });
 
 function position(d) {
@@ -586,20 +556,6 @@ function path(d) {
     return linePC(dimensions.map(function(p) { return [xPC(p), yPC[p](d[p])];}));
 }
 
-function brushstart(event, d) {
-  event.sourceEvent.stopPropagation();
-}
-
-// Handles a brush event, toggling the display of foreground lines.
-function brush(event, d) {
-  var actives = dimensions.filter(function(p) { return !yPC[p].brush.empty(); }),
-      extents = actives.map(function(p) { return yPC[p].brush.extent(); });
-  foreground.style("display", function(d) {
-    return actives.every(function(p, i) {
-      return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-    }) ? null : "none";
-  });
-}
 }
 
 
