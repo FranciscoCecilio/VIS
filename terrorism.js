@@ -401,7 +401,7 @@ function gen_line_chart() {
                 .attr("stroke", "indianred")
                 .attr("stroke-width", 0.5)
                 .attr("y", -9)
-                .text(function(d) { return "Comulative Deaths"; })
+                .text(function(d) { return "Cumulative Deaths"; })
                 .style("fill", "black")
 
         textY1=axisY1.append("text")
@@ -539,7 +539,10 @@ function gen_parallel_coordinates() {
                 .append("text")
                 .style("text-anchor", "middle")
                 .attr("y", -9)
-                .text(function(d) { return d; })
+                .text(function(d) {
+                    if(d == "Military") return "Military (%GDP)"
+                    return d;
+                })
                 .style("fill", "black")
 });
 
@@ -674,7 +677,7 @@ function button_deaths() {
 
     textY0
                 .attr("stroke", "indianred")
-                .text(function(d) { return "Comulative Deaths"; })
+                .text(function(d) { return "Cumulative Deaths"; })
     axisY0
         .attr("class", "axisRed")
         .call(d3.axisLeft(y0).ticks(5));
