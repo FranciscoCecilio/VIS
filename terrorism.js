@@ -132,9 +132,9 @@ function gen_choropleth_map() {
 
     svg_choropleth_map.append("rect")
         .attr("class", "linearLegend")
-        .attr("transform", "translate(38,270)")
-        .attr("width", 10)
-        .attr("height", 100)
+        .attr("transform", "translate(38,230)")
+        .attr("width", 15)
+        .attr("height", 150)
         .style("fill", "url(#gradient_red)").raise;
 
     var legend = svg_choropleth_map.selectAll("#gradient_red")
@@ -143,11 +143,12 @@ function gen_choropleth_map() {
         .append('text')
         .attr("font-family", "Arial")
         .attr("font-size","10")
+        .attr("font-weight","bold")
         .attr("x", function(d, i) {
             return 60;
         })
         .attr("y", function(d, i) {
-            return 255 + i * 22 ;
+            return 212 + i * 33 ;
         })
         .text(function(d) {
             return d;
