@@ -86,7 +86,7 @@ function gen_choropleth_map() {
         return +d[1]; //<-- convert to number
     })
 
-    domain = d3.range(0, max_attacks, 2000)
+    domain = [10, 100, 1000, 10000, 10000, 100000]
 
 
     var colorScale = d3.scaleThreshold()
@@ -138,7 +138,7 @@ function gen_choropleth_map() {
         .style("fill", "url(#gradient_red)").raise;
 
     var legend = svg_choropleth_map.selectAll("#gradient_red")
-        .data(breaks)
+        .data(domain)
         .enter()
         .append('text')
         .attr("font-family", "Arial")
@@ -1008,8 +1008,8 @@ function render_circle(){
                 })
                 .style("fill", "black")
                 .attr("font-family", "Arial")
+                .attr("text-anchor", "middle")
                 .attr("font-size", 14 - selectedCountries.length)
-                .attr('transform', 'translate(-30, ' + (50 / 2) + ')');
         } else if (context == 1) {
             nodes = d3.hierarchy(circles)
                 .sum(function(d) {
